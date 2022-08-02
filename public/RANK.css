@@ -1,0 +1,41 @@
+.but{   
+    text-align: center;
+    width: 150px;   
+    min-height: 20px;   
+    display: inline;   
+    background-color: #4a77d4;   
+    border: 1px solid #3762bc;   
+    color: #fff;   
+    cursor: pointer;
+    padding: 9px 14px;   
+    font-size: 15px;   
+    line-height: normal;   
+    border-radius: 5px;
+    margin: 5px auto;   
+}
+.main {
+    width: 78%;
+    margin: -190px auto;
+    background-color: #ffffff
+}
+table {
+    border-spacing: 0;
+    width: 100%;
+}
+tr {
+    text-align: center;
+}
+th {
+    padding: 10px;
+}
+table tbody tr:nth-child(odd){
+    background-color: #eee
+}
+table thead {
+    background-color: blue;
+    color: white;
+}
+table thead th:first-child {
+    border-radius: 5px 0 0 0;
+    border: 1px solid blue;
+}

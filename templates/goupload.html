@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <link href="uplod.css" rel="stylesheet" type="text/css" />
+        <title>檔案上傳</title>
+    </head>
+
+    <body>
+        <div id="login">
+            <h1>{{ message }}</h1>
+            <form action="/upload" enctype="multipart/form-data" method="POST">
+                <input type="file" name="file"/><br/>
+                <button class="but">送出</button><br/>
+            </form>
+            <form action="/member">
+                <button class="but">返回會員首頁</button>
+            </form>
+        </div>
+    </body>
+
+</html>
+<!-- <label class="btn btn-info" style="background-color: red;">
+    <input id="upload_img" style="display:none;" type="file">
+    <i class="fa fa-photo"></i> 上傳圖片
+</label> -->
