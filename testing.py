@@ -1,8 +1,8 @@
 import auto
 import importlib
 import os
-def ans(filename, hwnum):
-    auto.receive(filename, hwnum)
+def ans(studentid, filename, hwnum):
+    auto.receive(studentid, filename, hwnum)
     os.chdir(auto.first)
     importlib.reload(auto)
     # Answer = auto.string

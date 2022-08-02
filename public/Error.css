@@ -29,7 +29,6 @@ body{
 .but{   
     width: 300px;   
     min-height: 20px;   
-    cursor: pointer;
     display: block;   
     background-color: #4a77d4;   
     border: 1px solid #3762bc;   

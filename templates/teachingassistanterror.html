@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" >
+        <title>MESSAGE</title>
+        <style type="text/css">
+            html{width: 100%;height: 100%;overflow: hidden;font-style: sans-s}   
+            body{width: 100%;height: 100%;font-family: 'Open Sans',sans-serif;margin: 0; background-color: #4A374A;}
+            #login{position: absolute;top: 50%;left:50%;margin: -150px 0 0 -150px;width: 300px; height: 300px;}   
+            #login h1{color: #fff;text-shadow:0 0 10px;letter-spacing: 5px;text-align: center; white-space:nowrap}   
+            .but{width: 300px;min-height: 20px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 0;}
+        </style>
+    </head>
+    <body>
+        <div id="login">
+            <!-- <h1>發生錯誤</h1> -->
+            <h1>{{ message }}</h1> <!-- 區塊段落 -->
+            <form action="/teachingassistant">
+                <button class="but">返回助教頁面</button>
+            </form>
+        </div>
+    </body>
+</html>

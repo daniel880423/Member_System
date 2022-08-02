@@ -5,20 +5,25 @@ from guppy import hpy
 try:    
     first = os.getcwd()
     # print(first)
-    os.chdir(f"./file/hw{hw_num}")
+    os.chdir(f"./file/hw{hw_num}/{id}")
     last = os.getcwd()
     # print(last)
     # 抓取 function 名稱
-    s = open(f'{student_file}.py', encoding='utf-8').read()
-    start = s.index('def ')
-    end = s[s.index('def ')+1:].index('(')+1
-    function_name = s[start: end].split()[1]
+    # s = open(f'{student_file}.py', encoding='utf-8').read()
+    # start = s.index('def ')
+    # end = s[s.index('def ')+1:].index('(')+1
+    # function_name = s[start: end].split()[1]
+    function_name = f"homework_{hw_num}"
     #---------------------------------------------------------# vscode 加入環境變數
     sys.dont_write_bytecode = True
     sys.path.append(os.getcwd())
-    #---------------------------------------------------------# vscode 加入環境變數
     exec(f"from {student_file} import {function_name} as func")
+    #---------------------------------------------------------# vscode 加入環境變數
+    os.chdir(f"C:\\Users\\user\\Desktop\\論文\\Membership system\\file")
+    sys.dont_write_bytecode = True
+    sys.path.append(os.getcwd())
     exec(f"from question import hw{hw_num}_IN as In, hw{hw_num}_ANS as Ans")
+    #---------------------------------------------------------# vscode 加入環境變數
     frequency = 100  # 循環次數
     score = 0  # 基本分
     avg = 2.5  # 一題幾分
@@ -44,7 +49,8 @@ try:
     # print(f"分數 : {score} 分")
     # print(f"記憶體使用資訊 : \n{heap_status2}")  # 從 第5行 - 第14行
 except NameError:
-    def receive(filename, hwnum):
-        global student_file,hw_num
+    def receive(studentid, filename, hwnum):
+        global id, student_file, hw_num
         student_file = filename.split('.py')[0]
         hw_num = hwnum
+        id = studentid

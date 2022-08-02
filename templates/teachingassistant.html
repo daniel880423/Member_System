@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>最高權限</title>
+    <style type="text/css">
+        table {border-spacing: 0;width: 100%;}
+        tr {text-align: center;}
+        th {padding: 10px;}
+        table tbody tr:nth-child(odd) {background-color: #eee}
+        table thead {background-color: blue;color: white;}
+        table thead th:first-child {border-radius: 5px 0 0 0;border: 1px solid blue;}
+        .but {text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+    </style>
+</head>
+
+<body style="background-color: #315e49;">
+    <div style="text-align:center;">
+        <h1 style="color: rgb(47, 2, 66);">助教專用網站</h1></br>
+    </div>
+    <table border="3" width="300px" height="100px" style="border-color:#555858;">
+        <tr>
+            <td bgcolor="#37464a">
+                <form action="/opensmallname" style="display:inline-block;"><button class="but" style="font-size: 23px;">開啟留言匿名</button></form>
+                <form action="/unopensmallname" style="display:inline-block;"><button class="but" style="font-size: 23px;">關閉留言匿名</button></form>
+            </td>
+        </tr>
+    </table></br>
+    <table border="3" width="300px" height="100px" style="border-color:#555858;">
+        <tr>
+            <td bgcolor="#37464a">
+                <form action="/opencomment" style="display:inline-block;"><button class="but" style="font-size: 23px;">顯示留言</button></form>
+                <form action="/unopencomment" style="display:inline-block;"><button class="but" style="font-size: 23px;">關閉留言</button></form>
+            </td>
+        </tr>
+    </table></br>
+    <table border="3" width="300px" height="100px" style="border-color:#555858;">
+        <tr>
+            <td bgcolor="#37464a">
+                <form action="/studentdata" style="display:inline-block;"><button class="but" style="font-size: 23px;">學生後臺數據</button></form>
+                <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+                <form action="/signout" style="display:inline-block;"><button class="but" style="font-size: 23px;">登出</button></form>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

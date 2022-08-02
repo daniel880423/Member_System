@@ -1,4 +1,4 @@
-def  to_1D_array(Matrix, Major):  # Matrix型態:list[list]，Major型態:str
+def  homework_4(Matrix, Major):  # Matrix型態:list[list]，Major型態:str
     length = len(Matrix)                #先算矩陣大小
     #右下
     right_down = True                    #判斷是否為右下三角形，一開始先設為True
