@@ -67,19 +67,20 @@ def smallnamereviewHtml(rows, collection):
     cursor_list = sorted(list(cursor), key=lambda x:x["Number"])
     for dic in cursor_list:
         idx = html.index("未")
+
         if "Time_file" in dic:
-            # html[idx:idx+3] = [f"<a href='/Timecodepage?msg={str(dic['_id'])}'>程式碼</a>"]
-            html[idx:idx+3] = [f"<a href='/Timecodepage/{str(dic['_id'])}'>程式碼</a>"]
+            html[idx:idx+3] = [f"<a href='/codepage/Time/{str(dic['_id'])}'>程式碼</a>"]
         else:
             if "Not_perfect_time_file" in dic:
-                html[idx:idx+3] = [f"<a href='/Timecodepage/{str(dic['_id'])}'>程式碼</a>"]
+                html[idx:idx+3] = [f"<a href='/codepage/Time/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx:idx+3] = ["沒有完成"]
+
         if "Memory_file" in dic:
-            html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage/{str(dic['_id'])}'>程式碼</a>"]
+            html[idx+87-2:idx+87+3-2] = [f"<a href='/codepage/Memory/{str(dic['_id'])}'>程式碼</a>"]
         else:
             if "Not_perfect_memory_file" in dic:
-                html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage/{str(dic['_id'])}'>程式碼</a>"]
+                html[idx+87-2:idx+87+3-2] = [f"<a href='/codepage/Memory/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx+87-2:idx+87+3-2] = ["沒有完成"]
     

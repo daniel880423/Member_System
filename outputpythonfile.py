@@ -21,6 +21,7 @@ class PythonToHTML:
 
         # 定義所需資料
         self.py = str() # 檔案內容
+        self.py_ori = str() # 原始檔案內容
         self.colored = list() # 已上色 index 列表，type : list[int]
         self.coloring_list = list() # 欲上色列表，type : list[list[int, int, str]]，意義為[開始index, 結束index, 著色類別]
 
@@ -43,7 +44,7 @@ class PythonToHTML:
         self.op_list = "=+-*/%&|^>!~,:"
         # class='brackets'
         self.brackets_list = "()[]{}"
-    def main(self, code_only): # 主程式
+    def main(self): # 主程式
         self.read_py() # 讀取 py 檔，並存成 self.py(str)
         self.py = self.py.replace("<", "&lt")
         self.find_comment() # 尋找註解(class='comment')
@@ -61,7 +62,7 @@ class PythonToHTML:
         self.find_number() # 尋找數字(class='number')
         self.add_span() # 加入所有 span 標籤
         self.add_html_exception() # 處理 HTML 例外格式
-        return self.to_html(code_only) # 轉為 HTML
+        return self.to_html() # 轉為 HTML
     def read_py(self): # 讀取 py 檔，並存成 self.py(str)
         now = os.getcwd()
         # print(now)
@@ -80,6 +81,7 @@ class PythonToHTML:
             self.py = "\n"
             for line in f: self.py += line
             self.py += "\n"
+            self.py_ori = self.py[1:-1]
             os.chdir(now)
     def find_comment(self): # 尋找註解(class='comment')
         for i in range(len(self.py)):
@@ -409,23 +411,26 @@ class PythonToHTML:
                     </table></br>
             """
         return htmltext
-    def to_html_python_code(self, code_only):
+    def to_html_python_code(self):
         htmltext = "<table class='code'>"
         for i in range(len(self.py)):
             htmltext += "<tr>"
-            if not code_only:
-                htmltext += f"<td class='table_num'>{i+1}</td>"
-                htmltext += f"<td width='10px'></td>"
+            htmltext += f"<td class='table_num'>{i+1}</td>"
+            htmltext += f"<td width='10px'></td>"
             htmltext += f"<td>{self.py[i]}</td>"
             htmltext += "</tr>"
         htmltext += "</table></br>"
         return htmltext
     def to_html_copy(self):
+        # htmltext = f"""
+        #             <form action="/copyfile/{self.ojid}">
+        #                 <button class="but" style="font-size: 23px;">我想複製程式碼</button>
+        #             </form>
+        #         """
         htmltext = f"""
-                    <form action="/{self.Type}copyfile">
-                        <button class="but" style="font-size: 23px;">我想複製程式碼</button>
-                    </form>
-                """
+                    <button class="but" style="font-size: 23px;" onclick="copy()">Copy</button>
+                    """
+        # print(self.py_ori)
         return htmltext
     def to_html_msg_board(self):
         htmltext = ""
@@ -435,7 +440,7 @@ class PythonToHTML:
             comment_time = []
             comment = []
             text = ""
-            cursor = self.collection.find()
+            cursor = list(self.collection.find())
             for i in cursor:
                 if i["StudentID"] == self.id:
                     student_dict = i["Comment_detail"]
@@ -464,7 +469,7 @@ class PythonToHTML:
             """ + text + "</table></div>"
 
         htmltext += f"""
-                    <form class="CommenT" action="/{self.Type}codepage/{self.ojid}", method="POST">
+                    <form class="CommenT" action="/codepage/{self.Type}/{self.ojid}", method="POST">
                         <textarea cols="48" rows="8" minlength="25" maxlength="1000" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
                         <button class="cmt">提交留言</button>
                     </form>
@@ -483,7 +488,7 @@ class PythonToHTML:
                     </table>
                     """
         return htmltext
-    def to_html(self, code_only):
+    def to_html(self):
         self.py = self.py.split("\n")
         self.py = self.py[1:-1]
 
@@ -501,33 +506,47 @@ class PythonToHTML:
             </head>
             <body>
             """
-        if code_only: HTML += self.to_html_python_code(code_only) + self.to_html_menu()
-        else:
-            HTML += f"""
-                {self.to_html_code_owner()}
-                {self.to_html_python_code(code_only)}
-                {self.to_html_copy()}
-                {self.to_html_msg_board()}
-                {self.to_html_menu()}
-                """
+        self.py_ori = self.py_ori.replace("'","\'").replace('"', '\"')
+        HTML += f"""
+            {self.to_html_code_owner()}
+            {self.to_html_python_code()}
+            {self.to_html_copy()}
+            {self.to_html_msg_board()}
+            {self.to_html_menu()}
+            <script>
+            function copy(){{
+                var text = `{self.py_ori}` ;
+                if (navigator.clipboard){{
+                navigator.clipboard.writeText(text);
+                }} else{{
+                var textarea = document.createElement('textarea');
+                document.body.appendChild (textarea);
+                // 隱藏此輸入框
+                textarea.style.position = 'fixed' ;
+                textarea.style.clip = 'rect(0 0 0 0)' ;
+                textarea.style.top = '10px' ;
+                textarea.value = text;
+                textarea.select();
+                document.execCommand( 'copy' , true );
+                document.body.removeChild (textarea);
+                }}
+                alert("已複製到剪貼簿囉！");
+            }}
+            </script>
+            """
         HTML += "</body></html>"
 
         return HTML
 
-def read_python_file(filename, id, hwn, Name, bol, collection, Type, ojid, code_only = False): 
+def read_python_file(filename, id, hwn, Name, bol, collection, Type, ojid): 
     now = os.getcwd()
     pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type, ojid)
-    html = pth.main(code_only)
+    html = pth.main()
     #-----------------------------------------------------#
     os.chdir("./templates")
     sys.dont_write_bytecode = True
     sys.path.append(os.getcwd())
     #-----------------------------------------------------#
-    if not code_only:
-        with open(f"{Type}codepage.html", "w", encoding="utf-8") as f:
-            f.write(html)
-            os.chdir(now)
-    else:
-        with open(f"Copy{Type}codepage.html", "w", encoding="utf-8") as f:
-            f.write(html)
-            os.chdir(now)
+    with open(f"codepage.html", "w", encoding="utf-8") as f:
+        f.write(html)
+        os.chdir(now)

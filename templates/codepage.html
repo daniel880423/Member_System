@@ -1,0 +1,101 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>時間程式碼</title>
+                <style type="text/css">
+                    body {font-family: consolas;background-color: #37464a;color:black}
+                    
+                    .code {border-collapse: collapse;color: #9cdcfe;background-color:#1a1b1c;width: 100%}
+                    .table_num {text-align: right;width: 40px;color: grey}
+                    .keyword1 {color: #569cd6}
+                    .keyword2 {color: #c586c0}
+                    .op {color: #d4d4d4}
+                    .func {color: #dcdcaa}
+                    .str {color: #ce9178}
+                    .comment {color:#6a9955;font-style:italic}
+                    .brackets {color:#ffd700}
+                    .module {color:#4ec9b0}
+                    .number {color:#b5cea8}
+                
+                    
+                    .CommenT {font:100% verdana,arial,sans-serif;margin: auto;padding: 0;min-width: 500px;max-width: 600px;width: 560px; height:280px;top:0; bottom:0; left:0; right:0;}
+                    table {table-layout:fixed;border-spacing: 0;width: 100%;}
+                    input{outline-style: none ;border: 5px solid #ccc; border-radius: 3px; border-color: #965ca1;padding: 14px 14px;width: 565px;font-size: 24px;font-family: consolas;}
+                    .main {width: 80%;margin: 50px auto;}
+                    .but {text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                    .cmt {text-align: center;width: 150px;min-height: 40px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                
+                </style>
+            </head>
+            <body>
+            
+            
+            <table class='code'><tr><td class='table_num'>1</td><td width='10px'></td><td><span class='keyword1'>def</span>&nbsp<span class='func'>homework_1</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='op'>:</span></td></tr><tr><td class='table_num'>2</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbspCount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span>&nbsp<span class='comment'># 計算連續次數</td></tr><tr><td class='table_num'>3</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbspMax&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span>&nbsp<span class='comment'># 計算「最大」連續次數</td></tr><tr><td class='table_num'>4</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>for</span>&nbspi&nbsp<span class='keyword2'>in</span>&nbsp<span class='func'>range</span><span class='brackets'>(</span><span class='func'>len</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='op'>-</span><span class='number'>1</span><span class='brackets'>)</span><span class='op'>:</span></td></tr><tr><td class='table_num'>5</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspnums<span class='brackets'>[</span>i<span class='brackets'>]</span>&nbsp<span class='op'>!</span><span class='op'>=</span>&nbspnums<span class='brackets'>[</span>i<span class='op'>+</span><span class='number'>1</span><span class='brackets'>]</span><span class='op'>:</span>&nbsp<span class='comment'># 兩兩一組做比對，若不同就將 Count 重設為 1</td></tr><tr><td class='table_num'>6</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspCount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td class='table_num'>7</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>else</span><span class='op'>:</span>&nbsp<span class='comment'># 若相同則 Count + 1</td></tr><tr><td class='table_num'>8</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspCount&nbsp<span class='op'>+</span><span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td class='table_num'>9</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspMax&nbsp<span class='op'>&lt</span>&nbspCount<span class='op'>:</span>&nbsp<span class='comment'># 更新 Max 的數值</td></tr><tr><td class='table_num'>10</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspMax&nbsp<span class='op'>=</span>&nbspCount</td></tr><tr><td class='table_num'>11</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>return</span>&nbspMax</td></tr></table></br>
+            
+                    <button class="but" style="font-size: 23px;" onclick="copy()">Copy</button>
+                    
+            
+            <div class="main">
+                <table style="table-layout:fixed;border-collapse:collapse;word-break:keep-all;font-size:22px;">
+                    <tr style="color:#fff;background-color:#48a6fb;font-size:22px;">
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">時間</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言人</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言內容</th>
+                    </tr>
+            <tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-01 15:00:05</td>
+                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">星巴克</td>
+                        <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">這一串程式碼中，非常的完整，但是其中有一個缺點就是過於的冗長，這樣就會導致程式碼需要較長的時間去完成執行。</td></tr><tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-01 15:09:22</td>
+                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">星巴克</td>
+                        <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">這一位同學寫得非常好，邏輯思維的方式跟我一模一樣，首先是兩兩一組做比較，如果不同就重新再跑一次，如果相同就繼續比對。</td></tr><tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-01 15:23:58</td>
+                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">你剛剛攻擊我的村莊?</td>
+                        <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">跟我的撰寫模式很像，而且在程式碼後都有加上註解，更容易讓閱讀者清楚知道這一行在做什麼</td></tr><tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-01 15:44:25</td>
+                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">MM</td>
+                        <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">程式完整且能夠正確執行，程式碼比較的方式跟我的類似，但對for迴圈的思路跟我的不同，如果用for迴圈我會先把i設in range(len(nums))，之後再抓nums[i]的值做比較，但這位同學直接把i設in nums[1::]，直接讓i=nums[i]，這樣就能直接用i做比較，學到新的思路了。</td></tr></table></div>
+                    <form class="CommenT" action="/codepage/Time/6330513920e8fca2054532ed", method="POST">
+                        <textarea cols="48" rows="8" minlength="25" maxlength="1000" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
+                        <button class="cmt">提交留言</button>
+                    </form>
+                    
+            
+                    <table border="3" width="300px" height="100px" style="border-color:#555858;" class="tabbut">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <form action="/codereview" style="display:inline-block;"><button class="but" style="font-size: 23px;">程式碼審查清單</button></form>
+                                <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+                            </td>
+                        </tr>
+                    </table>
+                    
+            <script>
+            function copy(){
+                var text = `def homework_1(nums):
+    Count = 1 # 計算連續次數
+    Max = 1 # 計算「最大」連續次數
+    for i in range(len(nums)-1):
+        if nums[i] != nums[i+1]: # 兩兩一組做比對，若不同就將 Count 重設為 1
+            Count = 1
+        else: # 若相同則 Count + 1
+            Count += 1
+        if Max < Count: # 更新 Max 的數值
+            Max = Count
+    return Max` ;
+                if (navigator.clipboard){
+                navigator.clipboard.writeText(text);
+                } else{
+                var textarea = document.createElement('textarea');
+                document.body.appendChild (textarea);
+                // 隱藏此輸入框
+                textarea.style.position = 'fixed' ;
+                textarea.style.clip = 'rect(0 0 0 0)' ;
+                textarea.style.top = '10px' ;
+                textarea.value = text;
+                textarea.select();
+                document.execCommand( 'copy' , true );
+                document.body.removeChild (textarea);
+                }
+                alert("已複製到剪貼簿囉！");
+            }
+            </script>
+            </body></html>

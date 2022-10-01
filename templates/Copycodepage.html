@@ -1,0 +1,42 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>記憶體程式碼</title>
+                <style type="text/css">
+                    body {font-family: consolas;background-color: #37464a;color:black}
+                    
+                    .code {border-collapse: collapse;color: #9cdcfe;background-color:#1a1b1c;width: 100%}
+                    .table_num {text-align: right;width: 40px;color: grey}
+                    .keyword1 {color: #569cd6}
+                    .keyword2 {color: #c586c0}
+                    .op {color: #d4d4d4}
+                    .func {color: #dcdcaa}
+                    .str {color: #ce9178}
+                    .comment {color:#6a9955;font-style:italic}
+                    .brackets {color:#ffd700}
+                    .module {color:#4ec9b0}
+                    .number {color:#b5cea8}
+                
+                    
+                    .CommenT {font:100% verdana,arial,sans-serif;margin: auto;padding: 0;min-width: 500px;max-width: 600px;width: 560px; height:280px;top:0; bottom:0; left:0; right:0;}
+                    table {table-layout:fixed;border-spacing: 0;width: 100%;}
+                    input{outline-style: none ;border: 5px solid #ccc; border-radius: 3px; border-color: #965ca1;padding: 14px 14px;width: 565px;font-size: 24px;font-family: consolas;}
+                    .main {width: 80%;margin: 50px auto;}
+                    .but {text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                    .cmt {text-align: center;width: 150px;min-height: 40px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                
+                </style>
+            </head>
+            <body>
+            <table class='code'><tr><td><span class='keyword1'>def</span>&nbsp<span class='func'>homework_1</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='op'>:</span>&nbsp<span class='comment'># 請同學記得把檔案名稱改成自己的學號(ex.1104813.py)</td></tr><tr><td></span>&nbsp&nbsp&nbsp&nbspn&nbsp<span class='op'>=</span>&nbsp<span class='brackets'>[</span><span class='brackets'>]</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbspnums.append<span class='brackets'>(</span><span class='str'>""</span><span class='brackets'>)</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbspcount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbspl&nbsp<span class='op'>=</span>&nbsp<span class='func'>len</span><span class='brackets'>(</span>nums<span class='brackets'>)</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>for</span>&nbspi&nbsp<span class='keyword2'>in</span>&nbsp<span class='func'>range</span><span class='brackets'>(</span><span class='number'>0</span><span class='op'>,</span>&nbspl<span class='op'>-</span><span class='number'>1</span><span class='brackets'>)</span><span class='op'>:</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspnums<span class='brackets'>[</span>i<span class='brackets'>]</span>&nbsp<span class='op'>=</span><span class='op'>=</span>&nbspnums<span class='brackets'>[</span>i<span class='op'>+</span><span class='number'>1</span><span class='brackets'>]</span><span class='op'>:</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspcount&nbsp<span class='op'>+</span><span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>else</span><span class='op'>:</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspn.append<span class='brackets'>(</span>count<span class='brackets'>)</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspcount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td></tr><tr><td>&nbsp&nbsp&nbsp&nbspans&nbsp<span class='op'>=</span>&nbsp<span class='func'>max</span><span class='brackets'>(</span>n<span class='brackets'>)</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>return</span>&nbspans</td></tr><tr><td></td></tr><tr><td><span class='keyword2'>if</span>&nbsp__name__&nbsp<span class='op'>=</span><span class='op'>=</span>&nbsp<span class='str'>'__main__'</span><span class='op'>:</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsplst&nbsp<span class='op'>=</span>&nbsp<span class='brackets'>[</span><span class='number'>0</span><span class='op'>,</span><span class='number'>0</span><span class='op'>,</span><span class='number'>1</span><span class='op'>,</span><span class='number'>1</span><span class='op'>,</span><span class='number'>1</span><span class='op'>,</span><span class='number'>1</span><span class='op'>,</span><span class='number'>0</span><span class='op'>,</span><span class='number'>0</span><span class='op'>,</span><span class='number'>0</span><span class='op'>,</span><span class='number'>1</span><span class='brackets'>]</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp<span class='func'>print</span><span class='brackets'>(</span><span class='func'>homework_1</span><span class='brackets'>(</span>lst<span class='brackets'>)</span><span class='brackets'>)</span></td></tr><tr><td>&nbsp&nbsp&nbsp&nbsp</td></tr></table></br>
+                    <table border="3" width="300px" height="100px" style="border-color:#555858;" class="tabbut">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <form action="/codereview" style="display:inline-block;"><button class="but" style="font-size: 23px;">程式碼審查清單</button></form>
+                                <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+                            </td>
+                        </tr>
+                    </table>
+                    </body></html>

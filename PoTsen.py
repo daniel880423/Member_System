@@ -263,45 +263,29 @@ def codereviewsheet():  # 顯示審查清單
     else:
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
-@app.route("/Timecodepage/<ojid>", methods=["GET", "POST"])
-def Timecodepage(ojid):  # 時間程式碼頁面
-    # global File_Name, STUDENT_id
+@app.route("/codepage/<TYPE>/<ojid>", methods=["GET", "POST"])
+def codepage(TYPE, ojid):  # 時間程式碼頁面
+    low_TYPE = TYPE[0].lower() + TYPE[1:]
     os.chdir(First_Path)
     cursor = list(collection_homework.find())
-    if Anonymous_message:
-        # ojid = request.args.get("msg")  # 取得此程式碼的暱稱 
-        if ojid != None:   
-            for i in cursor:
-                if i["_id"] == ObjectId(ojid):
-                    if "Time_file" in i:
-                        File_Name = i["Time_file"]
-                        Name = i["Name"]
-                        break
-                    elif "Not_perfect_time_file" in i:
-                        File_Name = i["Not_perfect_time_file"]
-                        Name = i["Name"]
-                        break
-            File_Name = str(File_Name)
-            STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
-            # copy_time_file(File_Name, hwn, STUDENT_id)  # 生成複製程式碼頁面
-            read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time", ojid, code_only = True)  # 生成複製程式碼頁面
-    else:
-        FN = request.args.get("msg")  # 取得此程式碼的檔名
-        if FN != None:
-            File_Name = FN
-            File_Name = str(File_Name)
-            STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
-            for i in cursor:
-                if i["StudentID"] == STUDENT_id:
-                    Name = i["Name"]
-            # copy_time_file(File_Name, hwn, STUDENT_id)  # 生成複製程式碼頁面
-            read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time", ojid, code_only = True)  # 生成複製程式碼頁面
+    for i in cursor:
+        if i["_id"] == ObjectId(ojid):
+            if f"{TYPE}_file" in i:
+                File_Name = i[f"{TYPE}_file"]
+            elif f"Not_perfect_{low_TYPE}_file" in i:
+                File_Name = i[f"Not_perfect_{low_TYPE}_file"]
+            Name = i["Name"]
+            break
+    File_Name = str(File_Name)
+    STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
     if request.method == "GET":
         if "StudentID" in session:
             if Code_review_comment:  # 判斷是否開啟程式碼審查
-                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time", ojid)
-                # return redirect(f"/Timecodepage/{ojid}")
-                return render_template("Timecodepage.html")
+                if TYPE == "Time":
+                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid)
+                else:
+                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid)
+                return render_template("codepage.html")
             else:
                 return render_template("membererror.html", message="此功能尚未開放!")
         else:
@@ -311,121 +295,36 @@ def Timecodepage(ojid):  # 時間程式碼頁面
             comment = request.form["Comment"]
             comment = comment.replace("\n", "<br>").replace("\r", "<br>")
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            # print(len(list(cursor)))
             for i in cursor:
                 if i["StudentID"] == session["StudentID"]:
                     comment_by = i["Name"]
                     smallname = i["Smallname"]
                     break
-            # cursor = collection_homework.find()  # cursor 一旦使用過必須重新呼叫 ***********************************************
             for i in cursor:
                 if i["StudentID"] == STUDENT_id:
+                    name = i["Name"]
+                    frequency = i["Frequency"]
+                    if Anonymous_message: # 判斷匿名是否開啟
+                        aaa = smallname
+                    else:
+                        aaa = comment_by
                     if "Time_file" in i and "Memory_file" in i:
-                        name = i["Name"]
                         memory_file = i["Memory_file"]
                         time_file = i["Time_file"]
                         memory = i["Memory"]
                         Time = i["Time"]
-                        frequency = i["Frequency"]
-                        if Anonymous_message:  # 判斷匿名是否開啟
-                            get_comment_and_show(name, STUDENT_id, File_Name, date, smallname, comment, hwn, memory, Time, memory_file, time_file, frequency, "Time")
-                        else:
-                            get_comment_and_show(name, STUDENT_id, File_Name, date, comment_by, comment, hwn, memory, Time, memory_file, time_file, frequency, "Time")
-                        break               
+                        get_comment_and_show(name, STUDENT_id, File_Name, date, aaa, comment, hwn, memory, Time, memory_file, time_file, frequency, TYPE)
                     else:
-                        name = i["Name"]
                         not_perfect_memory_file = i["Not_perfect_memory_file"]
                         not_perfect_time_file = i["Not_perfect_time_file"]
-                        frequency = i["Frequency"]
-                        if Anonymous_message:  # 判斷匿名是否開啟
-                            not_perfect_get_comment_and_show(name, STUDENT_id, File_Name, date, smallname, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Time")
-                        else:
-                            not_perfect_get_comment_and_show(name, STUDENT_id, File_Name, date, comment_by, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Time")
-                        break
-            read_python_file(File_Name, STUDENT_id, hwn, name, Anonymous_message, collection_comment_time, "Time", ojid)
-            return render_template("Timecodepage.html")
-        else:
-            return redirect("/error?msg=尚未登入!請先登入謝謝~")
-
-@app.route("/Memorycodepage/<ojid>", methods=["GET", "POST"])
-def Memorycodepage(ojid):  # 記憶體程式碼頁面
-    # global FILE_NAME, STUDENT_ID
-    os.chdir(First_Path)
-    cursor = list(collection_homework.find())
-    if Anonymous_message:
-        # ojid = request.args.get("msg")  # 取得此程式碼的暱稱
-        if ojid != None:
-            for i in cursor:
-                if i["_id"] == ObjectId(ojid):
-                    if "Memory_file" in i:
-                        FILE_NAME = i["Memory_file"]
-                        Name = i["Name"]
-                        break
-                    elif "Not_perfect_memory_file" in i:
-                        FILE_NAME = i["Not_perfect_memory_file"]
-                        Name = i["Name"]
-                        break
-            FILE_NAME = str(FILE_NAME)
-            STUDENT_ID = (FILE_NAME.split('_')[0].split('s'))[1]
-            # copy_memory_file(FILE_NAME, hwn, STUDENT_ID)  # 生成複製程式碼頁面
-            read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory", ojid, True)  # 生成複製程式碼頁面
-    else:
-        FN = request.args.get("msg")  # 取得此程式碼的檔名
-        if FN != None:
-            FILE_NAME = FN
-            FILE_NAME = str(FILE_NAME)
-            STUDENT_ID = (FILE_NAME.split('_')[0].split('s'))[1]
-            for i in cursor:
-                if i["StudentID"] == STUDENT_ID:
-                    Name = i["Name"]
-            # copy_memory_file(FILE_NAME, hwn, STUDENT_ID)  # 生成複製程式碼頁面
-            read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory", ojid, True)  # 生成複製程式碼頁面
-    if request.method == "GET":
-        if "StudentID" in session:
-            if Code_review_comment:  # 判斷是否開啟程式碼審查
-                read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory", ojid)
-                return render_template("Memorycodepage.html")
-            else:
-                return render_template("membererror.html", message="此功能尚未開放!")
-        else:
-            return redirect("/error?msg=尚未登入!請先登入謝謝~")
-    else:
-        if "StudentID" in session:
-            comment = request.form["Comment"]
-            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
-            DATE = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            for i in cursor:
-                if i["StudentID"] == session["StudentID"]:
-                    comment_by = i["Name"]
-                    smallname = i["Smallname"]
+                        not_perfect_get_comment_and_show(name, STUDENT_id, File_Name, date, aaa, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, TYPE)
                     break
-            cursor = collection_homework.find()  # cursor 一旦使用過必須重新呼叫 ***********************************************
-            for i in cursor:
-                if i["StudentID"] == STUDENT_ID:
-                    if "Time_file" in i and "Memory_file" in i:
-                        name = i["Name"]
-                        memory_file = i["Memory_file"]
-                        time_file = i["Time_file"]
-                        memory = i["Memory"]
-                        Time = i["Time"]
-                        frequency = i["Frequency"]
-                        if Anonymous_message:  # 判斷匿名是否開啟
-                            get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, smallname, comment, hwn, memory, Time, memory_file, time_file, frequency, "Memory")
-                        else:
-                            get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, comment_by, comment, hwn, memory, Time, memory_file, time_file, frequency, "Memory")
-                        break
-                    else:
-                        name = i["Name"]
-                        not_perfect_memory_file = i["Not_perfect_memory_file"]
-                        not_perfect_time_file = i["Not_perfect_time_file"]
-                        frequency = i["Frequency"]
-                        if Anonymous_message:  # 判斷匿名是否開啟
-                            not_perfect_get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, smallname, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Memory")
-                        else:
-                            not_perfect_get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, comment_by, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Memory")
-                        break
-            read_python_file(FILE_NAME, STUDENT_ID, hwn, name, Anonymous_message, collection_comment_memory, "Memory", ojid)
-            return render_template("Memorycodepage.html")
+            
+            if TYPE == "Time":
+                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid)
+            else:
+                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid)
+            return render_template("codepage.html")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
@@ -497,14 +396,6 @@ def unopencodereviewcomment():  # 關閉審查留言
             return redirect("/membererror?msg=您不是助教唷,沒有權限~")
     else:
         return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
-
-@app.route("/Timecopyfile")
-def Timecopyfile():   # 給學生複製時間程式碼
-    return render_template("Copytimecodepage.html")
-
-@app.route("/Memorycopyfile")
-def Memorycopyfile():   # 給學生複製記憶體程式碼
-    return render_template("Copymemorycodepage.html")
 
 @app.route("/checkmistake")
 def checkmistake():   # 給學生確認錯誤題目
@@ -849,6 +740,6 @@ def addstudentmemberinformation():  # 新增學生會員資訊到新作業資料
 #----------------------------------------------------#    函式區塊
 
 if __name__ == '__main__':
-    app.run(host="140.138.178.26" ,port=3000, use_reloader=False)
+    app.run(host="140.138.178.26" ,port=5000)
     # app.run(host="140.138.178.26" ,port=5000, debug=True)
     # app.run(port=3000, debug=True)
