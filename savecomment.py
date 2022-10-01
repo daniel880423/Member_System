@@ -1,9 +1,10 @@
 # 載入 pymongo 套件
 import pymongo
 # 連線到 MongoDB 雲端資料庫
-# comment_number 計算留言次數
+
 def get_comment_and_show(name, name_id,filename, date, comment_by, comment, hw_num, memory, time, memory_file, time_file, frequency, tmp):
     client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
+    comment = comment.replace("'","\\'")
     tmp = "Comment_" + tmp
     exec(f"db = client.Homework_{hw_num}")  # 選擇操作 website 資料庫 (website 自行定義資料庫名稱)
     exec(f"collection = db.{tmp}")  # 選擇要操作 users 集合 (users 自行定義集合名稱)

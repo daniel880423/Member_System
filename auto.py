@@ -3,13 +3,13 @@ import time
 from guppy import hpy
 
 try:    
-    first = "C:\\Users\\user\\Desktop\\論文\\Membership system"
+    first = "C:\\Users\\lab70829\\Desktop\\Membership system"
     os.chdir(first)
-    button = False  # 判斷初始是否有error
+    button = False
     sheet = []  # html用
     studentwrongans = []  # 學生錯誤答案, 特殊 error
     #---------------------------------------------------------# vscode 加入環境變數
-    os.chdir(f"C:\\Users\\user\\Desktop\\論文\\Membership system\\file")
+    os.chdir(f"C:\\Users\\lab70829\\Desktop\\Membership system\\file")
     sys.dont_write_bytecode = True
     sys.path.append(os.getcwd())
     exec(f"from question import hw{hw_num}_IN as In, hw{hw_num}_ANS as Ans")
@@ -59,8 +59,6 @@ try:
                     else:
                         error.append(i)
                         studentwrongans.append(student_Ans)
-
-
         heap_status2 = heap.heap()  # 堆疊終點
         os.chdir(first)
         Score = int(score)

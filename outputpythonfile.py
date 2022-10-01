@@ -7,7 +7,7 @@ import pymongo
 # 把資料放進資料庫中
 import re
 class PythonToHTML:
-    def __init__(self, input_py_name, hwn, id, Name, bol, collection, Type):
+    def __init__(self, input_py_name, hwn, id, Name, bol, collection, Type, ojid):
         # 輸入與輸出檔案名稱
         self.input_py_name = input_py_name
         self.hwn = hwn
@@ -17,6 +17,7 @@ class PythonToHTML:
         self.collection = collection
         self.Type = Type
         self.Type_zh_dict = {"Time":"時間", "Memory":"記憶體"}
+        self.ojid = ojid
 
         # 定義所需資料
         self.py = str() # 檔案內容
@@ -463,8 +464,8 @@ class PythonToHTML:
             """ + text + "</table></div>"
 
         htmltext += f"""
-                    <form class="CommenT" action="/{self.Type}codepage", method="POST">
-                        <textarea cols="48" rows="8" minlength="20" maxlength="100" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;">審查意見:</textarea></br>
+                    <form class="CommenT" action="/{self.Type}codepage/{self.ojid}", method="POST">
+                        <textarea cols="48" rows="8" minlength="25" maxlength="1000" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
                         <button class="cmt">提交留言</button>
                     </form>
                     """
@@ -513,9 +514,9 @@ class PythonToHTML:
 
         return HTML
 
-def read_python_file(filename, id, hwn, Name, bol, collection, Type, code_only = False): 
+def read_python_file(filename, id, hwn, Name, bol, collection, Type, ojid, code_only = False): 
     now = os.getcwd()
-    pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type)
+    pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type, ojid)
     html = pth.main(code_only)
     #-----------------------------------------------------#
     os.chdir("./templates")

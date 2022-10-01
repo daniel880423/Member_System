@@ -102,7 +102,7 @@ def checkmistakeHtml(rows):
     final_html = final_html.replace("'", "\"")
     # print(final_html)
     # print("--------------------------------")
-    path = "C:\\Users\\user\\Desktop\\論文\\Membership system"
+    path = "C:\\Users\\lab70829\\Desktop\\Membership system"
     os.chdir(path)
     # print(os.getcwd())
     # # print("--------------------------------")

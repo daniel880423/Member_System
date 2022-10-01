@@ -103,7 +103,7 @@ def Html(student):
         # final_html = f"<!DOCTYPE html><head><meta charset='UTF-8'><link href='RANK.css' rel='stylesheet' type='text/css' /><title>排名</title></head><body style='background-color: #37464a;'><form action='/rank1'><button class='but'>總表</button></form><form action='/rank2'><button class='but'>時間排名</button></form><form action='/rank3'><button class='but'>記憶體排名</button></form><form action='/member'><button class='but'>返回會員首頁</button></form><div class='main'>{html}</div></body></html>"
         final_html = final_html.replace("'", "\"")
         # print("--------------------------------")
-        path = "C:\\Users\\user\\Desktop\\論文\\Membership system"
+        path = "C:\\Users\\lab70829\\Desktop\\Membership system"
         os.chdir(path)
         # print(os.getcwd())
         # print("--------------------------------")

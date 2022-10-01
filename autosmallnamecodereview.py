@@ -1,10 +1,9 @@
 from HTMLTable import HTMLTable
 # 載入 pymongo 套件
-import pymongo
+# import pymongo
 import os
 # 連線到 MongoDB 雲端資料庫
-client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
-
+# client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
 
 def smallnamereviewHtml(rows, collection):
     # 標題
@@ -61,7 +60,6 @@ def smallnamereviewHtml(rows, collection):
 
     html = table.to_html()  # 字串
     html = list(html)
-
     # print(html[html.index("未")+87:html.index("未")+87+3])
     
     # print(html[html.index("未")+91:html.index("未")+3+91])
@@ -70,20 +68,21 @@ def smallnamereviewHtml(rows, collection):
     for dic in cursor_list:
         idx = html.index("未")
         if "Time_file" in dic:
-            html[idx:idx+3] = [f"<a href='/Timecodepage?msg={str(dic['_id'])}'>程式碼</a>"]
+            # html[idx:idx+3] = [f"<a href='/Timecodepage?msg={str(dic['_id'])}'>程式碼</a>"]
+            html[idx:idx+3] = [f"<a href='/Timecodepage/{str(dic['_id'])}'>程式碼</a>"]
         else:
             if "Not_perfect_time_file" in dic:
-                html[idx:idx+3] = [f"<a href='/Timecodepage?msg={str(dic['_id'])}'>程式碼</a>"]
+                html[idx:idx+3] = [f"<a href='/Timecodepage/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx:idx+3] = ["沒有完成"]
         if "Memory_file" in dic:
-            html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={str(dic['_id'])}'>程式碼</a>"]
+            html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage/{str(dic['_id'])}'>程式碼</a>"]
         else:
             if "Not_perfect_memory_file" in dic:
-                html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={str(dic['_id'])}'>程式碼</a>"]
+                html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx+87-2:idx+87+3-2] = ["沒有完成"]
-
+    
     html = ''.join(html)
 
     final_html = """
@@ -128,9 +127,10 @@ def smallnamereviewHtml(rows, collection):
     final_html = final_html.replace("'", "\"")
     # print(final_html)
     # print("--------------------------------")
-    path = "C:\\Users\\user\\Desktop\\論文\\Membership system"
+    path = "C:\\Users\\lab70829\\Desktop\\Membership system"
     os.chdir(path)
     # print(os.getcwd())
     # # print("--------------------------------")
     with open(f"templates/codereview.html", "w", encoding="utf-8") as file:
         file.write(final_html)
+

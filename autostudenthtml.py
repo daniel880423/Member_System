@@ -5,8 +5,8 @@ def studentHtml(rows):
     table = HTMLTable()
     # 表頭行
     table.append_header_rows((
-        ('編號', '學號', '姓名', '暱稱', '上傳次數', '最佳分數','最佳程式碼' , ''),
-        (    '',    '',     '',    '',         '',         '','時間', '記憶體'),
+        ('編號', '學號', '姓名', '暱稱', '上傳次數', '最佳分數', '審查編號','最佳程式碼' , ''),
+        (    '',    '',     '',    '',         '',         '',       '','時間', '記憶體'),
     ))
     # 合併單元格
     table[0][0].attr.rowspan = 2
@@ -15,7 +15,8 @@ def studentHtml(rows):
     table[0][3].attr.rowspan = 2
     table[0][4].attr.rowspan = 2
     table[0][5].attr.rowspan = 2
-    table[0][6].attr.colspan = 2
+    table[0][6].attr.rowspan = 2
+    table[0][7].attr.colspan = 2
 
     # 資料行
 
@@ -105,7 +106,7 @@ def studentHtml(rows):
     final_html = final_html.replace("'", "\"")
     # print(final_html)
     # print("--------------------------------")
-    path = "C:\\Users\\user\\Desktop\\論文\\Membership system"
+    path = "C:\\Users\\lab70829\\Desktop\\Membership system"
     os.chdir(path)
     # print(os.getcwd())
     # # print("--------------------------------")
