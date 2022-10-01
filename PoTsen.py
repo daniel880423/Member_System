@@ -1,5 +1,5 @@
 # 初始化資料庫連線
-import os
+import os, sys
 import time
 from werkzeug.utils import secure_filename  # 過濾檔案名稱
 import pymongo  # 資料庫
@@ -7,48 +7,72 @@ from testing import ans  # 計算成績
 from autohtml import Html  # 輸出排名
 import pandas as pd
 from autocodereview import reviewHtml  # 輸出 review 表單 
-from timeoutputpythonfile import time_read_python_file  # 輸出時間程式碼和留言系統
-from memeryoutputpythonfile import memery_read_python_file  # 輸出記憶體程式碼和留言系統
+from autosmallnamecodereview import smallnamereviewHtml  # 輸出 smallname review 表單 
+from automistake import checkmistakeHtml  # 輸出錯誤題目表單
+from outputpythonfile import read_python_file  # 輸出時間和記憶體程式碼和留言系統 / 複製程式碼
 from autostudenthtml import studentHtml  # 生成學生後臺數據
 from savecomment import get_comment_and_show  # 儲存學生的留言
+from notperfectsavecomment import not_perfect_get_comment_and_show  # 儲存沒有滿分學生的留言
+from bson.objectid import ObjectId  # 以 ObjectID 作為目標
+from random import sample  # 隨機生成編號
 
-# import shutil  # 刪除檔案
+#----------------------------------------------------# 自定義變數
+Anonymous_message = True  # 匿名開關
+Code_review_comment = True  # 程式碼審查開關
+Upload_file = False  # 上傳作業開關
+hwn = "1"  # 作業編號
+ALLOWED_EXTENSIONS = set(['py'])  # 限制檔案格式
+First_Path = "C:\\Users\\user\\Desktop\\論文\\Membership system"  # 首頁目錄
+#----------------------------------------------------# 自定義變數
 
 client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
 db = client.member_system   # 資料庫
 collection = db.member  # 集合
-print("資料庫連線建立成功")
+# print("資料庫連線建立成功")
+exec(f"db_homework = client.Homework_{hwn}")
+collection_homework = db_homework.member
+collection_comment_time = db_homework.Comment_Time
+collection_comment_memory = db_homework.Comment_Memory
+
+#----------------------------------------------------#
 
 # 載入 Flask 所有的相關工具
 from flask import *
 app = Flask(__name__, static_folder="public", static_url_path="/")
 app.secret_key = "any string but secret"
-#----------------------------------------------------#
+#----------------------------------------------------# 熱更新 html 檔案
 app.jinja_env.auto_reload = True  # 更新靜態文件
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-#----------------------------------------------------#
+#----------------------------------------------------# 熱更新 html 檔案
 
+#----------------------------------------------------#   路由 route
 @app.route("/")
-def index():
+def index():  # 首頁
     return render_template("home.html")
 
 @app.route("/member")
-def member():
-    cursor = collection.find()  # 取得所有資料的 cursor 物件
-    for i in cursor:
-        if i["StudentID"] == session["StudentID"]:
-            name = i["Name"]
+def member():  # 會員頁面
+    cursor = collection_homework.find()  # 取得所有資料的 cursor 物件
+    if session["StudentID"] != "1104813":
+        for i in cursor:
+            if i["StudentID"] == session["StudentID"]:
+                name = i["Name"]
+                number = i["Number"]
+                break
+    else:
+        name = "助教-孟柏岑"
+        number = 0
     if "StudentID" in session:
-        return render_template("member.html", message = f"{session['StudentID']}{name}")
+        return render_template("member.html", message = f"{session['StudentID']}-{name}", msg = f"審查編號:{number}")
     else:
         return redirect("/")
 
 @app.route("/forgetpassword")
-def forgetpassword():
+def forgetpassword():  # 更改密碼頁面
     return render_template("forgetpassword.html")
 
 @app.route("/reflash", methods=["POST"])
-def reflash():
+def reflash():  # 更改密碼處理
     # 從前端接收資料
     nickname = request.form["nickname"]
     smallname = request.form["smallname"]
@@ -57,18 +81,23 @@ def reflash():
     string = changepassword(nickname, studentid, smallname, password)
     return render_template("error.html", message=string)  # 彈性帶入資料
 
-# /error?msg=錯誤訊息
 @app.route("/error")
-def error():
+def error():  # 要求字串頁面
+    # /error?msg=錯誤訊息
     msg = request.args.get("msg", "發生錯誤,請聯繫客服!")
     return render_template("error.html", message=msg)  # 彈性帶入資料
 
+@app.route("/membererror")
+def membererror():  # 會員要求字串頁面
+    msg = request.args.get("msg", "發生錯誤,請聯繫助教!")
+    return render_template("membererror.html", message=msg)
+
 @app.route("/register")
-def register():
+def register():  # 註冊頁面
     return render_template("register.html")
 
 @app.route("/signup", methods=["POST"])
-def signup():
+def signup():  # 註冊
     # 從前端接收資料
     nickname = request.form["nickname"]
     smallname = request.form["smallname"]
@@ -91,11 +120,16 @@ def signup():
             "Smallname":smallname,
             "Password":password
         })
+        collection_homework.insert_one({
+            "Name":nickname,
+            "StudentID":studentid,
+            "Smallname":smallname,
+        })
     else:return redirect("/error?msg=請正確輸入您的學號!")
     return redirect("/error?msg=恭喜~註冊成功!")
 
 @app.route("/signin", methods=["POST"])
-def signin():
+def signin():  # 登入
     # 從前端取得使用者輸入
     studentid = request.form["studentid"]
     password = request.form["password"]
@@ -114,13 +148,13 @@ def signin():
     return redirect("/member")
 
 @app.route("/signout")
-def signout():
+def signout():  # 登出
     # 移除 Session 中的會員資訊
     del session["StudentID"]
     return redirect("/")
     
 @app.route("/rank1")
-def rank1():
+def rank1():  # 總表
     # 顯示演算法概論排名
     if "StudentID" in session:
         #------------------------------------------------# 自動化輸出排名
@@ -131,7 +165,7 @@ def rank1():
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/rank2")
-def rank2():
+def rank2():  #　時間排名
     # 顯示演算法概論排名
     if "StudentID" in session:
         #------------------------------------------------# 自動化輸出排名
@@ -142,7 +176,7 @@ def rank2():
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/rank3")
-def rank3():
+def rank3():  #　記憶體排名
     # 顯示演算法概論排名
     if "StudentID" in session:
         #------------------------------------------------# 自動化輸出排名
@@ -153,99 +187,254 @@ def rank3():
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/goupload")
-def goupload():
+def goupload():  # 上傳頁面
     # 顯示上傳檔案的頁面
     if "StudentID" in session:
-        msg = request.args.get("msg", "尚未上傳檔案!")
-        return render_template("goupload.html")
+        if Upload_file:
+            if session["StudentID"] != "1104813":
+                cursor = collection_homework.find()
+                for i in cursor:
+                    if i["StudentID"] == session["StudentID"]:
+                        if "Frequency" in i:
+                            upload_freq = i["Frequency"]
+                            break
+                        else:
+                            upload_freq = 0
+                            break
+            else:upload_freq = 0
+            # msg = request.args.get("msg", "尚未上傳檔案!")
+            return render_template("goupload.html", message = f"上傳次數:{upload_freq}")
+        else:
+            return redirect("/membererror?msg=此功能尚未開放!")
     else:
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
+@app.route("/upload", methods=["POST"])
+def upload():  # 上傳檔案後的處理 (成績 / 複雜度 / 上傳次數)
+    check_student_dir(session["StudentID"])  # 創建學生作業資料夾
+    UPLOAD_FOLDER = f'C:/Users/user/Desktop/論文/Membership system/file/hw{hwn}/{session["StudentID"]}'
+    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER  # 存放的資料夾
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制檔案大小 "16MB"
+    file = request.files["file"]
+    file_name = str(file.filename).split('.py')[0]
+    if file and allowed_file(file.filename) and (session["StudentID"] == file_name):  # 儲存學生上傳的檔案
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+    else:return redirect("/membererror?msg=檔案錯誤,請重新上傳!")
+    cursor = list(collection_homework.find())
+    for i in cursor:
+        if i["StudentID"] == session["StudentID"]:
+            # if "Frequency" in i:
+            #     filename = check_student_file_rename(session["StudentID"], filename, hwn, str(i["Frequency"]))
+            #     break
+            # else:
+            #     filename = check_student_file_rename(session["StudentID"], filename, hwn, "0")
+            #     break
+            freq = 0
+            if "Frequency" in i:
+                freq = str(i["Frequency"])
+            filename = check_student_file_rename(session["StudentID"], filename, hwn, freq)
+            break
+    # print(filename)
+    Score, Time, Memory, Sheet = ans(session["StudentID"], filename, hwn)  # 計算分數 , 時間 , 記憶體
+    TimeMemory(session["StudentID"], Time, Memory, Score)  # Time and Memory 寫入資料庫
+    uploadCount(session["StudentID"])  # 計算上傳次數
+    # print(session["StudentID"])
+    if Score == 100:
+        return render_template("membererror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:{Time}ms", Memory=f"記憶體:{Memory}KB")
+    else:
+        create_checkmistake_sheet(Sheet)
+        return render_template("uploaderror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:----ms", Memory=f"記憶體:----KB")
+
 @app.route("/codereview")
-def codereview():
+def codereview():  # 程式碼審查表格頁面
     if "StudentID" in session:
-        create_codereview_sheet()
-        return render_template("codereview.html")
+        if Code_review_comment:  # 判斷是否開啟程式碼審查
+            if Anonymous_message:
+                create_smallname_codereview_sheet()
+                return render_template("codereview.html")
+            else:
+                create_codereview_sheet()
+                return render_template("codereview.html")
+        else:
+            return render_template("membererror.html", message="此功能尚未開放!")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/codereviewsheet")
+def codereviewsheet():  # 顯示審查清單
+    if "StudentID" in session:
+        return render_template("codereviewsheet.html")
     else:
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/Timecodepage", methods=["GET", "POST"])
-def Timecodepage():
-    global File_Name, Student_ID, date
+def Timecodepage():  # 時間程式碼頁面
+    # exec(f"global File_Name{'3'}, STUDENT_id{'3'}")
+    global File_Name, STUDENT_id
+    cursor = collection_homework.find()
+    if Anonymous_message:
+        ojid = request.args.get("msg")  # 取得此程式碼的暱稱 
+        if ojid != None:   
+            for i in cursor:
+                if i["_id"] == ObjectId(ojid):
+                    
+                    if "Time_file" in i:
+                        File_Name = i["Time_file"]
+                        Name = i["Name"]
+                        break
+                    elif "Not_perfect_time_file" in i:
+                        File_Name = i["Not_perfect_time_file"]
+                        Name = i["Name"]
+                        break
+            File_Name = str(File_Name)
+            STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
+            # copy_time_file(File_Name, hwn, STUDENT_id)  # 生成複製程式碼頁面
+            read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time", True)  # 生成複製程式碼頁面
+    else:
+        FN = request.args.get("msg")  # 取得此程式碼的檔名
+        if FN != None:
+            File_Name = FN
+            File_Name = str(File_Name)
+            STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
+            for i in cursor:
+                if i["StudentID"] == STUDENT_id:
+                    Name = i["Name"]
+            # copy_time_file(File_Name, hwn, STUDENT_id)  # 生成複製程式碼頁面
+            read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time", True)  # 生成複製程式碼頁面
     if request.method == "GET":
         if "StudentID" in session:
-            File_Name = request.args.get("msg")
-            File_Name = str(File_Name)
-            Student_ID = (File_Name.split('_')[0].split('s'))[1]
-            # print(File_Name, I_D, hwn, "Time")
-            time_read_python_file(File_Name, Student_ID, hwn)
-            return render_template("Timecodepage.html")
+            if Code_review_comment:  # 判斷是否開啟程式碼審查
+                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, "Time")
+                return render_template("Timecodepage.html")
+            else:
+                return render_template("membererror.html", message="此功能尚未開放!")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
     else:
         if "StudentID" in session:
             comment = request.form["Comment"]
-            # print(comment)
+            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            cursor = collection.find()
             for i in cursor:
                 if i["StudentID"] == session["StudentID"]:
                     comment_by = i["Name"]
-                if i["StudentID"] == Student_ID:
-                    name = i["Name"]
-                    memery_file = i["Memery_file"]
-                    time_file = i["Time_file"]
-                    memery = i["Memery"]
-                    Time = i["Time"]
-                    frequency = i["Frequency"]
-            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
-            get_comment_and_show(name, Student_ID, File_Name, date, comment_by, comment, hwn, memery, Time, memery_file, time_file, frequency, "Time")
-            time_read_python_file(File_Name, Student_ID, hwn)
-            # read_python_file(File_Name, Student_ID, hwn, "Time")
-            # print(name, File_Name, date, comment_by, comment)
+                    smallname = i["Smallname"]
+                    break
+            cursor = collection_homework.find()  # cursor 一旦使用過必須重新呼叫 ***********************************************
+            for i in cursor:
+                if i["StudentID"] == STUDENT_id:
+                    if "Time_file" in i and "Memory_file" in i:
+                        name = i["Name"]
+                        memory_file = i["Memory_file"]
+                        time_file = i["Time_file"]
+                        memory = i["Memory"]
+                        Time = i["Time"]
+                        frequency = i["Frequency"]
+                        if Anonymous_message:  # 判斷匿名是否開啟
+                            get_comment_and_show(name, STUDENT_id, File_Name, date, smallname, comment, hwn, memory, Time, memory_file, time_file, frequency, "Time")
+                        else:
+                            get_comment_and_show(name, STUDENT_id, File_Name, date, comment_by, comment, hwn, memory, Time, memory_file, time_file, frequency, "Time")
+                        break               
+                    else:
+                        name = i["Name"]
+                        not_perfect_memory_file = i["Not_perfect_memory_file"]
+                        not_perfect_time_file = i["Not_perfect_time_file"]
+                        frequency = i["Frequency"]
+                        if Anonymous_message:  # 判斷匿名是否開啟
+                            not_perfect_get_comment_and_show(name, STUDENT_id, File_Name, date, smallname, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Time")
+                        else:
+                            not_perfect_get_comment_and_show(name, STUDENT_id, File_Name, date, comment_by, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Time")
+                        break
+            read_python_file(File_Name, STUDENT_id, hwn, name, Anonymous_message, collection_comment_time, "Time")
+            # return redirect(f"/Timecodepage?msg={sn}")
             return render_template("Timecodepage.html")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
-@app.route("/Memerycodepage", methods=["GET", "POST"])
-def Memerycodepage():
-    global FILE_NAME, STUDENT_ID, DATE
-    if request.method == "GET":
-        if "StudentID" in session:
-            FILE_NAME = request.args.get("msg")
+@app.route("/Memorycodepage", methods=["GET", "POST"])
+def Memorycodepage():  # 記憶體程式碼頁面
+    global FILE_NAME, STUDENT_ID
+    cursor = collection_homework.find()
+    if Anonymous_message:
+        ojid = request.args.get("msg")  # 取得此程式碼的暱稱
+        if ojid != None:
+            for i in cursor:
+                if i["_id"] == ObjectId(ojid):
+                    if "Memory_file" in i:
+                        FILE_NAME = i["Memory_file"]
+                        Name = i["Name"]
+                        break
+                    elif "Not_perfect_memory_file" in i:
+                        FILE_NAME = i["Not_perfect_memory_file"]
+                        Name = i["Name"]
+                        break
             FILE_NAME = str(FILE_NAME)
             STUDENT_ID = (FILE_NAME.split('_')[0].split('s'))[1]
-            # print(FILE_NAME, STUDENT_ID, hwn)
-            memery_read_python_file(FILE_NAME, STUDENT_ID, hwn)
-            return render_template("Memerycodepage.html")
+            # copy_memory_file(FILE_NAME, hwn, STUDENT_ID)  # 生成複製程式碼頁面
+            read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory", True)  # 生成複製程式碼頁面
+    else:
+        FN = request.args.get("msg")  # 取得此程式碼的檔名
+        if FN != None:
+            FILE_NAME = FN
+            FILE_NAME = str(FILE_NAME)
+            STUDENT_ID = (FILE_NAME.split('_')[0].split('s'))[1]
+            for i in cursor:
+                if i["StudentID"] == STUDENT_ID:
+                    Name = i["Name"]
+            # copy_memory_file(FILE_NAME, hwn, STUDENT_ID)  # 生成複製程式碼頁面
+            read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory", True)  # 生成複製程式碼頁面
+    if request.method == "GET":
+        if "StudentID" in session:
+            if Code_review_comment:  # 判斷是否開啟程式碼審查
+                read_python_file(FILE_NAME, STUDENT_ID, hwn, Name, Anonymous_message, collection_comment_memory, "Memory")
+                return render_template("Memorycodepage.html")
+            else:
+                return render_template("membererror.html", message="此功能尚未開放!")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
     else:
         if "StudentID" in session:
             comment = request.form["Comment"]
+            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
             DATE = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            cursor = collection.find()
             for i in cursor:
                 if i["StudentID"] == session["StudentID"]:
                     comment_by = i["Name"]
+                    smallname = i["Smallname"]
+                    break
+            cursor = collection_homework.find()  # cursor 一旦使用過必須重新呼叫 ***********************************************
+            for i in cursor:
                 if i["StudentID"] == STUDENT_ID:
-                    name = i["Name"]
-                    memery_file = i["Memery_file"]
-                    time_file = i["Time_file"]
-                    memery = i["Memery"]
-                    Time = i["Time"]
-                    frequency = i["Frequency"]
-            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
-            get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, comment_by, comment, hwn, memery, Time, memery_file, time_file, frequency, "Memery")
-            memery_read_python_file(FILE_NAME, STUDENT_ID, hwn)
-            # read_python_file(File_Name, Student_ID, hwn, "Time")
-            # print(name, File_Name, date, comment_by, comment)
-            return render_template("Memerycodepage.html")
+                    if "Time_file" in i and "Memory_file" in i:
+                        name = i["Name"]
+                        memory_file = i["Memory_file"]
+                        time_file = i["Time_file"]
+                        memory = i["Memory"]
+                        Time = i["Time"]
+                        frequency = i["Frequency"]
+                        if Anonymous_message:  # 判斷匿名是否開啟
+                            get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, smallname, comment, hwn, memory, Time, memory_file, time_file, frequency, "Memory")
+                        else:
+                            get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, comment_by, comment, hwn, memory, Time, memory_file, time_file, frequency, "Memory")
+                        break
+                    else:
+                        name = i["Name"]
+                        not_perfect_memory_file = i["Not_perfect_memory_file"]
+                        not_perfect_time_file = i["Not_perfect_time_file"]
+                        frequency = i["Frequency"]
+                        if Anonymous_message:  # 判斷匿名是否開啟
+                            not_perfect_get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, smallname, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Memory")
+                        else:
+                            not_perfect_get_comment_and_show(name, STUDENT_ID, FILE_NAME, DATE, comment_by, comment, hwn, not_perfect_memory_file, not_perfect_time_file, frequency, "Memory")
+                        break
+            read_python_file(FILE_NAME, STUDENT_ID, hwn, name, Anonymous_message, collection_comment_memory, "Memory")
+            return render_template("Memorycodepage.html")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/teachingassistant")
-def teachingassistant():
+def teachingassistant():  # 助教頁面
     if "StudentID" in session:
         if session["StudentID"] == "1104813":
             return render_template("teachingassistant.html")
@@ -255,7 +444,7 @@ def teachingassistant():
         return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/studentdata")
-def studentdata():
+def studentdata():  # 顯示學生後台數據
     if "StudentID" in session:
         if session["StudentID"] == "1104813":
             create_student_data()  # 創建學生後臺數據
@@ -266,17 +455,120 @@ def studentdata():
         return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/opensmallname")
-def opensmallname():
-    pass
+def opensmallname():  # 開啟匿名留言
+    global Anonymous_message
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Anonymous_message = True  # 開啟匿名留言
+            return render_template("teachingassistanterror.html", message="成功開啟匿名留言~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
 @app.route("/unopensmallname")
-def unopensmallname():
-    pass
+def unopensmallname():  # 關閉匿名留言
+    global Anonymous_message
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Anonymous_message = False  # 關閉匿名留言
+            return render_template("teachingassistanterror.html", message="成功關閉匿名留言~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
-#--------------------------------------------------------------------------------#    函式區塊
+@app.route("/opencodereviewcomment")
+def opencodereviewcomment():  # 打開審查留言
+    global Code_review_comment
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Code_review_comment = True  # 開啟程式碼審查
+            return render_template("teachingassistanterror.html", message="成功開啟程式碼審查~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
-def createSheet():
-    sheet_Ori = [[i["StudentID"], i["Name"], i["Time"], i["Memery"]] for i in collection.find() if "Time" in i]
+@app.route("/unopencodereviewcomment")
+def unopencodereviewcomment():  # 關閉審查留言
+    global Code_review_comment
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Code_review_comment = False  # 關閉程式碼審查
+            return render_template("teachingassistanterror.html", message="成功關閉程式碼審查~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/Timecopyfile")
+def Timecopyfile():   # 給學生複製時間程式碼
+    return render_template("Copytimecodepage.html")
+
+@app.route("/Memorycopyfile")
+def Memorycopyfile():   # 給學生複製記憶體程式碼
+    return render_template("Copymemorycodepage.html")
+
+@app.route("/checkmistake")
+def checkmistake():   # 給學生確認錯誤題目
+    if "StudentID" in session:
+        return render_template("checkmistake.html")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/openuploadfile")
+def openuploadfile():  # 打開上傳檔案按鈕
+    global Upload_file
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Upload_file = True  # 開啟上傳檔案
+            return render_template("teachingassistanterror.html", message="成功開啟上傳檔案~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/unopenuploadfile")
+def unopenuploadfile():  # 關閉上傳檔案按鈕
+    global Upload_file
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            Upload_file = False  # 關閉上傳檔案
+            return render_template("teachingassistanterror.html", message="成功關閉上傳檔案~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/Assignnumber")
+def Assignnumber():  # 新增學生編號按鈕
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            randomcodereviewnumber()
+            return render_template("teachingassistanterror.html", message="成功生成編號~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/Addmemberinformation")
+def Addmemberinformation():
+    if "StudentID" in session:
+        if session["StudentID"] == "1104813":
+            addstudentmemberinformation()
+            return render_template("teachingassistanterror.html", message="成功新增作業資料庫~")
+        else:
+            return redirect("/membererror?msg=您不是助教唷,沒有權限~")
+    else:
+        return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
+
+#----------------------------------------------------#    路由 route
+
+#----------------------------------------------------#    函式區塊
+
+def createSheet():  # 顯示排名並給獎牌
+    sheet_Ori = [[i["StudentID"], i["Name"], i["Time"], i["Memory"]] for i in collection_homework.find() if "Time" in i]
     sheet_StuID = sorted(sheet_Ori, key=lambda x:x[0])
     sheet_Time = sorted(sheet_Ori, key=lambda x:x[2])
     sheet_Memory = sorted(sheet_Ori, key=lambda x:x[3])
@@ -332,126 +624,172 @@ def createSheet():
     #====================================================================================
     return [sheet_StuID, sheet_Time, sheet_Memory]
     
-
-def TimeMemery(id, time, memery, score):  # 寫入時間複雜度和空間複雜度
+def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜度
     if score == 100:
-        cursor = collection.find()
-        # print(id, time, memery, score)
-        for i in cursor:
-            if "Frequency" in i:
-                if i["StudentID"] == id:
-                    try:
-                        if i["Time"] < time:
-                            time = i["Time"]
-                        else:
-                            collection.update_one({
-                                "StudentID":id
-                            }, {
-                                "$set":{
-                                    "Time_file":f"s{id}_{i['Frequency']}"
-                                }
-                            })
-                    except KeyError:pass
-                    try:
-                        if i["Memery"] < memery:
-                            memery = i["Memery"]
-                        else:
-                            collection.update_one({
-                                "StudentID":id
-                            }, {
-                                "$set":{
-                                    "Memery_file":f"s{id}_{i['Frequency']}"
-                                }
-                            })
-                    except KeyError:pass
-            else:
-                collection.update_many({
-                    "StudentID":id
-                }, {
-                    "$set":{
-                        "Time_file":f"s{id}_0",
-                        "Memery_file":f"s{id}_0"
-                    }
-                })
-        result = collection.update_many({
-            "StudentID":id
-        }, {
-            "$set":{
-                "Time":time,
-                "Memery":memery
-            }
-        })
-        print(f"符合篩選條件的文件數量(TimeMemery):{result.matched_count}")
-        print(f"實際符合更新的文件數量(TimeMemery):{result.modified_count}")
-
-
-def uploadCount(id, score):  # 計算上傳次數
-    if score == 100:
-        cursor = collection.find()
+        cursor = collection_homework.find()
         for i in cursor:
             if i["StudentID"] == id:
-                if "Frequency" not in i:
-                    result = collection.update_one({
+                if "Frequency" in i:
+                    if "Time" in i:
+                        if i["Time"] > time:
+                            result = collection_homework.update_many({
+                                "StudentID":id
+                            }, {
+                                "$set":{
+                                    "Time_file":f"s{id}_{i['Frequency']}",
+                                    "Time":time
+                                }
+                            })
+                            print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+                            print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
+                        if i["Memory"] > memory:
+                            collection_homework.update_many({
+                                "StudentID":id
+                            }, {
+                                "$set":{
+                                    "Memory_file":f"s{id}_{i['Frequency']}",
+                                    "Memory":memory
+                                }
+                            })
+                    else:
+                        collection_homework.update_many({
+                            "StudentID":id
+                        }, {
+                            "$set":{
+                                "Time_file":f"s{id}_{i['Frequency']}",
+                                "Memory_file":f"s{id}_{i['Frequency']}",
+                                "Time":time,
+                                "Memory":memory,
+                                "Score":f"{score}"
+                            }
+                        })
+                else:
+                    collection_homework.update_many({
                         "StudentID":id
                     }, {
                         "$set":{
-                            "Frequency":1
+                            "Time_file":f"s{id}_0",
+                            "Memory_file":f"s{id}_0",
+                            "Time":time,
+                            "Memory":memory,
+                            "Score":f"{score}"
                         }
                     })
-                    print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
-                    print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
-                    break
-                else:
-                    result = collection.update_one({  # 利用 'StudentID':學號 當搜尋目標 ;再用 '$inc' (加 or 減) 想要的資料
-                        "StudentID":id
-                    }, {
-                        "$inc":{
-                            "Frequency":1  # '1' 代表原本數字加 1
-                        }
-                    })
-                    print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
-                    print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
-                    break
+    else:
+        cursor = collection_homework.find()
+        for i in cursor:
+            if i["StudentID"] == id:
+                if "Time_file" not in i and "Memory_file" not in i:
+                    if "Frequency" in i:
+                        if int(i["Score"]) < score:
+                            collection_homework.update_many({
+                                "StudentID":id
+                            }, {
+                                "$set":{
+                                    "Not_perfect_time_file":f"s{id}_{i['Frequency']}",
+                                    "Not_perfect_memory_file":f"s{id}_{i['Frequency']}",
+                                    "Score":f"{score}"
+                                }
+                            })
+                    else:
+                        collection_homework.update_many({
+                            "StudentID":id
+                        }, {
+                            "$set":{
+                                "Not_perfect_time_file":f"s{id}_0",
+                                "Not_perfect_memory_file":f"s{id}_0",
+                                "Score":f"{score}"
+                            }
+                        })
 
-def check_student_dir(student_file, hw_num):
-    first = os.getcwd()
-    lst = os.listdir(f"file/hw{hw_num}")
-    last = os.chdir(f"./file/hw{hw_num}")
+def uploadCount(id):  # 計算上傳次數
+    cursor = collection_homework.find()
+    for i in cursor:
+        if i["StudentID"] == id:
+            if "Frequency" not in i:
+                result = collection_homework.update_one({
+                    "StudentID":id
+                }, {
+                    "$set":{
+                        "Frequency":1
+                    }
+                })
+                # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+                # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
+                break
+            else:
+                result = collection_homework.update_one({  # 利用 'StudentID':學號 當搜尋目標 ;再用 '$inc' (加 or 減) 想要的資料
+                    "StudentID":id
+                }, {
+                    "$inc":{
+                        "Frequency":1  # '1' 代表原本數字加 1
+                    }
+                })
+                # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+                # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
+                break
+
+def check_student_dir(student_file):  # 創建學生資料夾 "file/hw/studentid"
+    os.chdir(First_Path)
+    lst = os.listdir(f"./file/hw{hwn}")
+    os.chdir(f"./file/hw{hwn}")
     if student_file not in lst:os.mkdir(student_file)
-    os.chdir(first)
+    os.chdir(First_Path)
 
-def check_student_file_rename(studentid, filename, hw_num, freqency):
-    first = os.getcwd()
+def check_student_file_rename(studentid, filename, hw_num, freqency):  # 重新命名學生檔案 "s1104813_0"
     os.chdir(f"./file/hw{hw_num}/{studentid}")
+    if os.path.isfile(f"s{studentid}_{freqency}.py"):  # 處理例外事件, 檔案重複
+        os.remove(f"s{studentid}_{freqency}.py")
     os.rename(filename, f"s{studentid}_{freqency}.py")
-    os.chdir(first)
+    os.chdir(First_Path)
     return f"s{studentid}_{freqency}.py"
 
-def create_codereview_sheet():  # 創建程式碼審查表單
+def create_codereview_sheet():  # 創建實名程式碼審查表單
     review_sheet = []
-    cursor = collection.find()
+    cursor = collection_homework.find()
     for i in cursor:
-        # print(i)
         review_sheet.append([i["StudentID"], i["Name"], "未上傳", "未上傳"])
 
     for rs in range(len(review_sheet)):
         review_sheet[rs] = tuple(review_sheet[rs])
     review_sheet = tuple(review_sheet)
 
-    reviewHtml(review_sheet)
+    reviewHtml(review_sheet, collection_homework)
 
-def create_student_data():
-    student_sheet = []
-    cursor = collection.find()
+def create_smallname_codereview_sheet():  # 創建匿名程式碼審查表單
+    sn_review_sheet = []
+    cursor = collection_homework.find()
+    count = 0
     for i in cursor:
-        print(i)
-        if "Time_file" in i and "Memery_file" in i:
-            student_sheet.append([i["StudentID"], i["Name"], "暱稱", i["Frequency"], i["Time_file"], i["Memery_file"]])
+        count += 1
+        sn_review_sheet.append([f"{count}", "未上傳", "未上傳"])
+
+    for srs in range(len(sn_review_sheet)):
+        sn_review_sheet[srs] = tuple(sn_review_sheet[srs])
+    sn_review_sheet = tuple(sn_review_sheet)
+    smallnamereviewHtml(sn_review_sheet, collection_homework)
+
+def create_checkmistake_sheet(checkmistake_sheet):  # 創建學生錯誤題目的表單
+    for rs in range(len(checkmistake_sheet)):
+        checkmistake_sheet[rs] = tuple(checkmistake_sheet[rs])
+    checkmistake_sheet = tuple(checkmistake_sheet)
+
+    checkmistakeHtml(checkmistake_sheet)
+
+def create_student_data():  # 創建後臺學生數據表單
+    student_sheet = []
+    cursor = collection_homework.find()
+    count = 0
+    for i in cursor:
+        count += 1
+        if "Time_file" in i and "Memory_file" in i:
+            student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Time_file"], i["Memory_file"]])
         else:
             if "Frequency" in i:
-                student_sheet.append([i["StudentID"], i["Name"], "暱稱", i["Frequency"], "未上傳檔案", "未上傳檔案"])
+                if "Not_perfect_time_file" in i and "Not_perfect_memory_file" in i:
+                    student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Not_perfect_time_file"], i["Not_perfect_memory_file"]])
             else:
-                student_sheet.append([i["StudentID"], i["Name"], "暱稱", "0", "未上傳檔案", "未上傳檔案"])
+                student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], "0", "目前沒分數", "未上傳檔案", "未上傳檔案"])
     for ss in range(len(student_sheet)):
         student_sheet[ss] = tuple(student_sheet[ss])
     student_sheet = tuple(student_sheet)
@@ -484,49 +822,37 @@ def changepassword(name, id, smallname, password):  # 更改密碼
             else:return "暱稱錯誤!"
     return "查無此人!"
 
-ALLOWED_EXTENSIONS = set(['py'])  # 限制檔案格式
-def allowed_file(filename):
+def allowed_file(filename):  # 限制檔案 (.py)
     return '.' in filename and \
            filename.split('.', 1)[1] in ALLOWED_EXTENSIONS
 
-#--------------------------------------------------------------------------#
+def randomcodereviewnumber():  # 新增編號給每位同學
+    number = sample(range(1,82), 81)
+    cursor = collection_homework.find()
+    count = 0
+    for i in cursor:
+        result = collection_homework.update_one({  # 利用 'name':'柏岑' 當搜尋目標 ;再用 '$set' (更新 or 添加) 想要改動的資料
+            "Name":i["Name"]
+        }, {
+            "$set":{
+                "Number":number[count]
+            }
+        })
+        count += 1
+    # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+    # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
 
-hwn = "4"
-@app.route("/upload", methods=["POST"])
-def upload():
-    check_student_dir(session["StudentID"], hwn)
-    UPLOAD_FOLDER = f'C:/Users/user/Desktop/論文/Membership system/file/hw{hwn}/{session["StudentID"]}'
-    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER  # 存放的資料夾
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 限制檔案大小 "16MB"
-    file = request.files["file"]
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-    else:return redirect("/membererror?msg=檔案錯誤,請重新上傳!")
+def addstudentmemberinformation():  # 新增學生會員資訊到新作業資料庫
     cursor = collection.find()
     for i in cursor:
-        if i["StudentID"] == session["StudentID"]:
-            # try:
-            if "Frequency" in i:
-                filename = check_student_file_rename(session["StudentID"], filename, hwn, str(i["Frequency"]))
-                break
-            else:
-                filename = check_student_file_rename(session["StudentID"], filename, hwn, "0")
-                break
-            # except UnboundLocalError:return redirect("/membererror?msg=未選擇檔案,請重新上傳!")
-    # print(filename)
-    Score, Time, Memery = ans(session["StudentID"], filename, hwn)
-    TimeMemery(session["StudentID"], Time, Memery, Score)  # Time and Memery 寫入資料庫
-    # print(session["StudentID"])
-    uploadCount(session["StudentID"], Score)  # 計算上傳次數
-    return render_template("membererror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:{Time}ms", Memery=f"記憶體:{Memery}KB")
-    # return render_template("membererror.html")
+        if i["Name"] == "孟柏岑":continue
+        collection_homework.insert_one({
+            "Name":i["Name"],
+            "StudentID":i["StudentID"],
+            "Smallname":i["Smallname"],
+        })
 
-@app.route("/membererror")
-def membererror():
-    msg = request.args.get("msg", "發生錯誤,請聯繫助教!")
-    return render_template("membererror.html", message=msg)
-
+#----------------------------------------------------#    函式區塊
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

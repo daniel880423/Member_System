@@ -1,8 +1,8 @@
 # 載入 pymongo 套件
 import pymongo
 # 連線到 MongoDB 雲端資料庫
-# comment_number 計算留言次數
-def get_comment_and_show(name, name_id,filename, date, comment_by, comment, hw_num, memory, time, memory_file, time_file, frequency, tmp):
+
+def not_perfect_get_comment_and_show(name, name_id,filename, date, comment_by, comment, hw_num, not_perfect_memory_file, not_perfect_time_file, frequency, tmp):
     client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
     tmp = "Comment_" + tmp
     exec(f"db = client.Homework_{hw_num}")  # 選擇操作 website 資料庫 (website 自行定義資料庫名稱)
@@ -11,7 +11,7 @@ def get_comment_and_show(name, name_id,filename, date, comment_by, comment, hw_n
 result = collection.find_one({{'Name':'{name}'}})
 if result == None:
     stu_dict = {{'{comment_by}':[{{'ModuleName':'{filename}.py', 'Comment':'{comment}', 'Comment_Time':'{date}'}}]}} 
-    collection.insert_one({{'Name':'{name}','StudentID':'{name_id}','Comment_detail': stu_dict, 'Comment_number':1, 'Memory':{memory}, 'Time':{time}, 'Memory_file':'{memory_file}', 'Time_file':'{time_file}', 'Frequency_file':{frequency}}})
+    collection.insert_one({{'Name':'{name}','StudentID':'{name_id}','Comment_detail': stu_dict, 'Comment_number':1, 'Not_perfect_memory_file':'{not_perfect_memory_file}', 'Not_perfect_time_file':'{not_perfect_time_file}', 'Frequency_file':{frequency}}})
 else:  
     cursor = collection.find()
     for i in cursor:

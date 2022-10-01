@@ -8,7 +8,6 @@ def ans(studentid, filename, hwnum):
     # Answer = auto.string
     Score = auto.Score
     Time = auto.Time
-    Memery = auto.Memery
-    return Score, Time, Memery
-# a,b,c=ans('B1.py','4')
-# print(a,b,c)
+    Memory = auto.Memory
+    Sheet = auto.sheet
+    return Score, Time, Memory, Sheet

@@ -3,16 +3,20 @@ import sys
 # 載入 pymongo 套件
 import pymongo
 # 連線到 MongoDB 雲端資料庫
-client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
+# client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
 # 把資料放進資料庫中
-
 import re
 class PythonToHTML:
-    def __init__(self, input_py_name, hwn, id):
+    def __init__(self, input_py_name, hwn, id, Name, bol, collection, Type):
         # 輸入與輸出檔案名稱
         self.input_py_name = input_py_name
         self.hwn = hwn
         self.id = id
+        self.Name = Name
+        self.bol = bol
+        self.collection = collection
+        self.Type = Type
+        self.Type_zh_dict = {"Time":"時間", "Memory":"記憶體"}
 
         # 定義所需資料
         self.py = str() # 檔案內容
@@ -38,7 +42,7 @@ class PythonToHTML:
         self.op_list = "=+-*/%&|^>!~,:"
         # class='brackets'
         self.brackets_list = "()[]{}"
-    def main(self): # 主程式
+    def main(self, code_only): # 主程式
         self.read_py() # 讀取 py 檔，並存成 self.py(str)
         self.py = self.py.replace("<", "&lt")
         self.find_comment() # 尋找註解(class='comment')
@@ -56,7 +60,7 @@ class PythonToHTML:
         self.find_number() # 尋找數字(class='number')
         self.add_span() # 加入所有 span 標籤
         self.add_html_exception() # 處理 HTML 例外格式
-        return self.to_html() # 轉為 HTML
+        return self.to_html(code_only) # 轉為 HTML
     def read_py(self): # 讀取 py 檔，並存成 self.py(str)
         now = os.getcwd()
         # print(now)
@@ -69,6 +73,7 @@ class PythonToHTML:
         os.chdir(f"{self.id}")
         sys.dont_write_bytecode = True
         sys.path.append(os.getcwd())
+        # print(self.input_py_name)
         with open(self.input_py_name, "r", encoding="utf-8") as f:
             # 頭尾加換行符號是方便做型別判斷處理，最後會刪除
             self.py = "\n"
@@ -332,101 +337,6 @@ class PythonToHTML:
                 if py_list[i][20:-8].startswith(" "):
                     py_list[i] = py_list[i][:19] + py_list[i][19:-8].replace(" ", "&nbsp") + py_list[i][-8:]
         self.py = "".join(py_list)
-    def to_html(self):
-        self.py = self.py.split("\n")
-        self.py = self.py[1:-1]
-        # exec(f"db = client.Homework_{self.hwn}")  # 選擇操作 website 資料庫 (website 自行定義資料庫名稱)
-        db = client.Homework_4  # 選擇操作 website 資料庫 (website 自行定義資料庫名稱)
-        collection = db.Comment_Time
-        result = collection.find_one({"StudentID":self.id})
-        if result != None:
-            comment_by = []
-            comment_time = []
-            comment = []
-            text = ""
-            cursor = collection.find()
-            for i in cursor:
-                if i["StudentID"] == self.id:
-                    name = i["Name"]
-                    student_dict = i["Comment_detail"]
-            for k,v in student_dict.items():
-                for i in v:
-                    comment_by.append(k)
-                    comment_time.append(i["Comment_Time"])
-                    comment.append(i[f"Comment"])
-            for i in range(len(comment)):
-                comment[i] = comment[i].replace("<br><br>", "<br>")
-                text += f"""<tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{comment_time[i]}</td>
-                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{comment_by[i]}</td>
-                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{comment[i]}</td></tr>"""
-
-        HTML = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>時間程式碼</title>
-                <style type="text/css">
-                    .CommenT {font:100% verdana,arial,sans-serif;margin: auto;padding: 0;min-width: 500px;max-width: 600px;width: 560px; height:280px;top:0; bottom:0; left:0; right:0;}
-                    table {border-spacing: 0;width: 100%;}
-                    input{outline-style: none ;border: 5px solid #ccc; border-radius: 3px; border-color: #965ca1;padding: 14px 14px;width: 565px;font-size: 24px;font-family: consolas;}
-                    body {font-family: consolas;background-color: #37464a;color:black}
-                    .main {width: 80%;margin: 50px auto;}
-                    .code {border-collapse: collapse;color: #9cdcfe;background-color:#1a1b1c;width: 100%}
-                    .table_num {text-align: right;width: 40px;color: grey}
-                    .keyword1 {color: #569cd6}
-                    .keyword2 {color: #c586c0}
-                    .op {color: #d4d4d4}
-                    .func {color: #dcdcaa}
-                    .str {color: #ce9178}
-                    .comment {color:#6a9955;font-style:italic}
-                    .brackets {color:#ffd700}
-                    .module {color:#4ec9b0}
-                    .number {color:#b5cea8}
-                    .but {text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
-                    .cmt {text-align: center;width: 150px;min-height: 40px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
-            </style>
-            </head>
-            <body>
-            """
-        
-        HTML += "<table class='code'>"
-        for i in range(len(self.py)):
-            HTML += "<tr>"
-            HTML += f"<td class='table_num'>{i+1}</td>"
-            HTML += f"<td width='10px'></td>"
-            HTML += f"<td>{self.py[i]}</td>"
-            HTML += "</tr>"
-        HTML += "</table></br>"
-        
-        if result != None:
-            HTML += """
-            <div class="main">
-                <table style="border-collapse:collapse;word-break:keep-all;white-space:nowrap;font-size:22px;">
-                    <tr style="color:#fff;background-color:#48a6fb;font-size:22px;">
-                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">時間</th>
-                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言人</th>
-                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言內容</th>
-                    </tr>
-            """ + text + "</table></div>"
-
-        HTML += """
-        <form class="CommenT" action="/Timecodepage", method="POST">
-            <textarea cols="48" rows="8" maxlength="100" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
-            <button class="cmt">提交留言</button>
-        </form>
-        <table border="3" width="300px" height="100px" style="border-color:#555858;" class="tabbut">
-            <tr style="text-align: center;">
-                <td bgcolor="#37464a">
-                    <form action="/codereview" style="display:inline-block;"><button class="but" style="font-size: 23px;">程式碼審查清單</button></form>
-                    <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
-                </td>
-            </tr>
-        </table>
-        </body></html>
-        """
-        return HTML
-
     def search_all(self, target, s): # 搜尋 py 檔內所有指定字串的 index
         return [_.start() for _ in re.finditer(target, s)]
     def add_coloring(self, data): # 新增著色區塊
@@ -459,18 +369,164 @@ class PythonToHTML:
             return s.isdigit() or s.isalpha() or s == "_"
     def is_number(self, s): # 確認是否為數字(int float 皆可判斷)
         return s.isdigit() or s == "."
+    def code_style(self):
+        style =  f"""
+                    .code {{border-collapse: collapse;color: #9cdcfe;background-color:#1a1b1c;width: 100%}}
+                    .table_num {{text-align: right;width: 40px;color: grey}}
+                    .keyword1 {{color: #569cd6}}
+                    .keyword2 {{color: #c586c0}}
+                    .op {{color: #d4d4d4}}
+                    .func {{color: #dcdcaa}}
+                    .str {{color: #ce9178}}
+                    .comment {{color:#6a9955;font-style:italic}}
+                    .brackets {{color:#ffd700}}
+                    .module {{color:#4ec9b0}}
+                    .number {{color:#b5cea8}}
+                """
+        return style
+    def msg_style(self):
+        style =  f"""
+                    .CommenT {{font:100% verdana,arial,sans-serif;margin: auto;padding: 0;min-width: 500px;max-width: 600px;width: 560px; height:280px;top:0; bottom:0; left:0; right:0;}}
+                    table {{table-layout:fixed;border-spacing: 0;width: 100%;}}
+                    input{{outline-style: none ;border: 5px solid #ccc; border-radius: 3px; border-color: #965ca1;padding: 14px 14px;width: 565px;font-size: 24px;font-family: consolas;}}
+                    .main {{width: 80%;margin: 50px auto;}}
+                    .but {{text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}}
+                    .cmt {{text-align: center;width: 150px;min-height: 40px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}}
+                """
+        return style
+    def to_html_code_owner(self):
+        # 程式碼主人 ==========================================================
+        htmltext = ""
+        if not self.bol:
+            htmltext = f"""
+                    <table align="center" border="15" height="150px" style="border-color:#555858; padding: 5px; text-align: center;">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <span style="font-size:60px; background-color: rgb(188, 240, 224); font-weight:bold; font-family: consolas; font-style:oblique; padding:3px;">&nbsp;類型:{self.Type}&nbsp;&nbsp;學號:{self.id}&nbsp;&nbsp;姓名:{self.Name}&nbsp;</span>
+                            </td>
+                        </tr>
+                    </table></br>
+            """
+        return htmltext
+    def to_html_python_code(self, code_only):
+        htmltext = "<table class='code'>"
+        for i in range(len(self.py)):
+            htmltext += "<tr>"
+            if not code_only:
+                htmltext += f"<td class='table_num'>{i+1}</td>"
+                htmltext += f"<td width='10px'></td>"
+            htmltext += f"<td>{self.py[i]}</td>"
+            htmltext += "</tr>"
+        htmltext += "</table></br>"
+        return htmltext
+    def to_html_copy(self):
+        htmltext = f"""
+                    <form action="/{self.Type}copyfile">
+                        <button class="but" style="font-size: 23px;">我想複製程式碼</button>
+                    </form>
+                """
+        return htmltext
+    def to_html_msg_board(self):
+        htmltext = ""
+        result = self.collection.find_one({"StudentID":self.id})
+        if result != None:
+            comment_by = []
+            comment_time = []
+            comment = []
+            text = ""
+            cursor = self.collection.find()
+            for i in cursor:
+                if i["StudentID"] == self.id:
+                    student_dict = i["Comment_detail"]
+            for k,v in student_dict.items():
+                for i in v:
+                    comment_by.append(k)
+                    comment_time.append(i["Comment_Time"])
+                    comment.append(i[f"Comment"])
+            
+            total = sorted([[comment_time[i], comment_by[i], comment[i]] for i in range(len(comment))])
 
+            for i in total:
+                i[2] = i[2].replace("<br><br>", "<br>")
+                text += f"""<tr><td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{i[0]}</td>
+                        <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{i[1]}</td>
+                        <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">{i[2]}</td></tr>"""
 
-def time_read_python_file(filename, id, hwn): 
+            htmltext = """
+            <div class="main">
+                <table style="table-layout:fixed;border-collapse:collapse;word-break:keep-all;font-size:22px;">
+                    <tr style="color:#fff;background-color:#48a6fb;font-size:22px;">
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">時間</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言人</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言內容</th>
+                    </tr>
+            """ + text + "</table></div>"
+
+        htmltext += f"""
+                    <form class="CommenT" action="/{self.Type}codepage", method="POST">
+                        <textarea cols="48" rows="8" minlength="20" maxlength="100" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;">審查意見:</textarea></br>
+                        <button class="cmt">提交留言</button>
+                    </form>
+                    """
+
+        return htmltext
+    def to_html_menu(self):
+        htmltext = """
+                    <table border="3" width="300px" height="100px" style="border-color:#555858;" class="tabbut">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <form action="/codereview" style="display:inline-block;"><button class="but" style="font-size: 23px;">程式碼審查清單</button></form>
+                                <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+                            </td>
+                        </tr>
+                    </table>
+                    """
+        return htmltext
+    def to_html(self, code_only):
+        self.py = self.py.split("\n")
+        self.py = self.py[1:-1]
+
+        HTML = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>{self.Type_zh_dict[self.Type]}程式碼</title>
+                <style type="text/css">
+                    body {{font-family: consolas;background-color: #37464a;color:black}}
+                    {self.code_style()}
+                    {self.msg_style()}
+                </style>
+            </head>
+            <body>
+            """
+        if code_only: HTML += self.to_html_python_code(code_only) + self.to_html_menu()
+        else:
+            HTML += f"""
+                {self.to_html_code_owner()}
+                {self.to_html_python_code(code_only)}
+                {self.to_html_copy()}
+                {self.to_html_msg_board()}
+                {self.to_html_menu()}
+                """
+        HTML += "</body></html>"
+
+        return HTML
+
+def read_python_file(filename, id, hwn, Name, bol, collection, Type, code_only = False): 
     now = os.getcwd()
-    pth = PythonToHTML(f"{filename}.py", hwn, id)
-    html = pth.main()
+    pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type)
+    html = pth.main(code_only)
     #-----------------------------------------------------#
     os.chdir("./templates")
     sys.dont_write_bytecode = True
     sys.path.append(os.getcwd())
     #-----------------------------------------------------#
-    with open("Timecodepage.html", "w", encoding="utf-8") as f:
-        f.write(html)
-        os.chdir(now)
-    # print("---------------------------------------------")
+    if not code_only:
+        with open(f"{Type}codepage.html", "w", encoding="utf-8") as f:
+            f.write(html)
+            os.chdir(now)
+    else:
+        with open(f"Copy{Type}codepage.html", "w", encoding="utf-8") as f:
+            f.write(html)
+            os.chdir(now)

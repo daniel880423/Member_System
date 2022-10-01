@@ -4,18 +4,18 @@ from HTMLTable import HTMLTable
 import os
 # 連線到 MongoDB 雲端資料庫
 # client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
-def reviewHtml(rows, collection):
+def checkmistakeHtml(rows):
     # 標題
     table = HTMLTable()
     # 表頭行
     table.append_header_rows((
-        ('學號', '姓名', '程式碼' , ''),
-        (    '',     '', '時間', '記憶體'),
+        ('錯誤題號', '錯誤題目', '您的答案','正確答案'),
     ))
     # 合併單元格
-    table[0][0].attr.rowspan = 2
-    table[0][1].attr.rowspan = 2
-    table[0][2].attr.colspan = 2
+    table[0][0].attr.rowspan = 1
+    table[0][1].attr.rowspan = 1
+    table[0][2].attr.rowspan = 1
+    table[0][3].attr.rowspan = 1
 
     # 資料行
 
@@ -52,45 +52,20 @@ def reviewHtml(rows, collection):
         'padding': '15px',
     })
     # 調小次表頭字型大小
-    table[1].set_cell_style({
-        'padding': '8px',
-        'font-size': '20px',
-    })
+    # table[1].set_cell_style({
+    #     'padding': '8px',
+    #     'font-size': '20px',
+    # })
     # ---------------------------------------------------------------- # 
 
     html = table.to_html()  # 字串
-    html = list(html)
-    # print(html[html.index("未")+87:html.index("未")+87+3])
-    
-    # print(html[html.index("未")+91:html.index("未")+3+91])
-    cursor = collection.find()
-    for i in cursor:
-        idx = html.index("未")
-        # print(i)
-        if "Time_file" in i:
-            html[idx:idx+3] = [f"<a href='/Timecodepage?msg={i['Time_file']}'>程式碼</a>"]
-        else:
-            if "Not_perfect_time_file" in i:
-                html[idx:idx+3] = [f"<a href='/Timecodepage?msg={i['Not_perfect_time_file']}'>程式碼</a>"]
-            else:
-                html[idx:idx+3] = ["沒有完成"]
-        if "Memory_file" in i:
-            html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={i['Memory_file']}'>程式碼</a>"]
-        else:
-            if "Not_perfect_memory_file" in i:
-                html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={i['Not_perfect_memory_file']}'>程式碼</a>"]
-            else:
-                html[idx+87-2:idx+87+3-2] = ["沒有完成"]
-    
-    html = ''.join(html)
-    # print(html)
 
     final_html = """
     <!DOCTYPE html>
 
     <head>
         <meta charset='UTF-8'>
-        <title>程式碼審查</title>
+        <title>錯誤題目</title>
         <style type="text/css">
             .main {
                 width: 80%;
@@ -111,6 +86,7 @@ def reviewHtml(rows, collection):
         <table border="3" width="300px" height="100px" style="border-color:#555858;">
             <tr>
                 <td bgcolor="#37464a">
+                    <form action="/goupload" style="display:inline-block;"><button class="but"style="font-size: 23px;">返回上傳</button></form>
                     <form action="/member" style="display:inline-block;"><button class="but"style="font-size: 23px;">返回會員首頁</button></form>
                 </td>
             </tr>
@@ -130,6 +106,6 @@ def reviewHtml(rows, collection):
     os.chdir(path)
     # print(os.getcwd())
     # # print("--------------------------------")
-    with open(f"templates/codereview.html", "w", encoding="utf-8") as file:
+    with open(f"templates/checkmistake.html", "w", encoding="utf-8") as file:
         file.write(final_html)
 

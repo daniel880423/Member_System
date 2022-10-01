@@ -5,15 +5,17 @@ def studentHtml(rows):
     table = HTMLTable()
     # 表頭行
     table.append_header_rows((
-        ('學號', '姓名', '暱稱', '上傳次數', '最佳程式碼' , ''),
-        (    '',     '',    '',         '', '時間', '記憶體'),
+        ('編號', '學號', '姓名', '暱稱', '上傳次數', '最佳分數','最佳程式碼' , ''),
+        (    '',    '',     '',    '',         '',         '','時間', '記憶體'),
     ))
     # 合併單元格
     table[0][0].attr.rowspan = 2
     table[0][1].attr.rowspan = 2
     table[0][2].attr.rowspan = 2
     table[0][3].attr.rowspan = 2
-    table[0][4].attr.colspan = 2
+    table[0][4].attr.rowspan = 2
+    table[0][5].attr.rowspan = 2
+    table[0][6].attr.colspan = 2
 
     # 資料行
 
@@ -100,7 +102,6 @@ def studentHtml(rows):
 
     </html>
     """
-    # final_html = f"<!DOCTYPE html><head><meta charset='UTF-8'><link href='RANK.css' rel='stylesheet' type='text/css' /><title>排名</title></head><body style='background-color: #37464a;'><form action='/rank1'><button class='but'>總表</button></form><form action='/rank2'><button class='but'>時間排名</button></form><form action='/rank3'><button class='but'>記憶體排名</button></form><form action='/member'><button class='but'>返回會員首頁</button></form><div class='main'>{html}</div></body></html>"
     final_html = final_html.replace("'", "\"")
     # print(final_html)
     # print("--------------------------------")
