@@ -4,7 +4,9 @@
 
 **程式語言 : Python/Html/CSS**
 
-**主程式 : signinout4.py**
+**主程式 : PoTsen.py**
+
+**學生作業 : file**
 
 # 會員登入系統 / Mongodb資料庫
 ***Ver 1.0 功能如下:***
