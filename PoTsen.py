@@ -5,7 +5,8 @@ from werkzeug.utils import secure_filename  # 過濾檔案名稱
 import pymongo  # 資料庫
 from testing import ans  # 計算成績
 from autohtml import Html  # 輸出排名
-import pandas as pd
+import pandas as pd  # Dateframe
+from collections import defaultdict  # dict{list}
 from autocodereview import reviewHtml  # 輸出 review 表單 
 from autosmallnamecodereview import smallnamereviewHtml  # 輸出 smallname review 表單 
 from automistake import checkmistakeHtml  # 輸出錯誤題目表單
@@ -15,16 +16,25 @@ from savecomment import get_comment_and_show  # 儲存學生的留言
 from notperfectsavecomment import not_perfect_get_comment_and_show  # 儲存沒有滿分學生的留言
 from bson.objectid import ObjectId  # 以 ObjectID 作為目標
 from random import sample  # 生成學生審查編號
+# *************************************************** # 舊作業
+from oldhomeworkautomemberhtml import oldhomeworkautomemberhtml  # 舊作業首頁
+from oldhomeworkautohtml import OldHtml  # 舊作業排名
+from oldhomeworkautocodereview import oldhomeworkreviewHtml  # 舊作業實名審查清單
+from oldhomeworkautosmallnamecodereview import oldhomeworksmallnamereviewHtml  # 舊作業匿名審查清單
+from oldhomeworkoutputpythonfile import old_read_python_file  # 舊作業程式碼審查
+from oldhomeworkautoteachingassistant import oldteachingassistanthtml  # 舊作業助教專區
+from oldhomeworkautostudenthtml import oldhomeworkstudentHtml  # 舊作業學生後台數據
+
+# *************************************************** # 舊作業
 
 #----------------------------------------------------# 自定義變數
-Anonymous_message = True  # 匿名開關
+Anonymous_message = False  # 匿名開關
 Code_review_comment = True  # 程式碼審查開關
 Upload_file = False  # 上傳作業開關
-hwn = "1"  # 作業編號
+hwn = "10"  # 作業編號
 ALLOWED_EXTENSIONS = set(['py'])  # 限制檔案格式
 First_Path = "C:\\Users\\lab70829\\Desktop\\Membership system"  # 首頁目錄
 #----------------------------------------------------# 自定義變數
-
 client = pymongo.MongoClient("mongodb+srv://root:root123@potsen.tysb9.mongodb.net/?retryWrites=true&w=majority")
 db = client.member_system   # 資料庫
 collection = db.member  # 集合
@@ -33,8 +43,52 @@ exec(f"db_homework = client.Homework_{hwn}")
 collection_homework = db_homework.member
 collection_comment_time = db_homework.Comment_Time
 collection_comment_memory = db_homework.Comment_Memory
-
 #----------------------------------------------------#
+
+# *************************************************** # 舊作業1
+db_homework_1 = client.Homework_1
+collection_homework_1 = db_homework_1.member
+homework_1_comment_time = db_homework_1.Comment_Time
+homework_1_comment_memory = db_homework_1.Comment_Memory
+# *************************************************** # 舊作業1
+# *************************************************** # 舊作業2
+db_homework_2 = client.Homework_2
+collection_homework_2 = db_homework_2.member
+homework_2_comment_time = db_homework_2.Comment_Time
+homework_2_comment_memory = db_homework_2.Comment_Memory
+# *************************************************** # 舊作業2
+# *************************************************** # 舊作業4
+db_homework_4 = client.Homework_4
+collection_homework_4 = db_homework_4.member
+homework_4_comment_time = db_homework_4.Comment_Time
+homework_4_comment_memory = db_homework_4.Comment_Memory
+# *************************************************** # 舊作業4
+# *************************************************** # 舊作業5
+db_homework_5 = client.Homework_5
+collection_homework_5 = db_homework_5.member
+homework_5_comment_time = db_homework_5.Comment_Time
+homework_5_comment_memory = db_homework_5.Comment_Memory
+# *************************************************** # 舊作業5
+# *************************************************** # 舊作業6
+db_homework_6 = client.Homework_6
+collection_homework_6 = db_homework_6.member
+homework_6_comment_time = db_homework_6.Comment_Time
+homework_6_comment_memory = db_homework_6.Comment_Memory
+# *************************************************** # 舊作業6
+
+# *************************************************** # 舊作業8
+db_homework_8 = client.Homework_8
+collection_homework_8 = db_homework_8.member
+homework_8_comment_time = db_homework_8.Comment_Time
+homework_8_comment_memory = db_homework_8.Comment_Memory
+# *************************************************** # 舊作業8
+
+# *************************************************** # 舊作業9
+db_homework_9 = client.Homework_9
+collection_homework_9 = db_homework_9.member
+homework_9_comment_time = db_homework_9.Comment_Time
+homework_9_comment_memory = db_homework_9.Comment_Memory
+# *************************************************** # 舊作業9
 
 # 載入 Flask 所有的相關工具
 from flask import *
@@ -52,18 +106,19 @@ def index():  # 首頁
 
 @app.route("/member")
 def member():  # 會員頁面
-    cursor = collection_homework.find()  # 取得所有資料的 cursor 物件
-    if session["StudentID"] != "1104813":
-        for i in cursor:
-            if i["StudentID"] == session["StudentID"]:
-                name = i["Name"]
-                number = i["Number"]
-                break
-    else:
-        name = "助教-孟柏岑"
-        number = 0
     if "StudentID" in session:
-        return render_template("member.html", message = f"{session['StudentID']}-{name}", msg = f"審查編號:{number}")
+        cursor = collection_homework.find()  # 取得所有資料的 cursor 物件
+        if session["StudentID"] != "1104813":
+            for i in cursor:
+                if i["StudentID"] == session["StudentID"]:
+                    name = i["Name"]
+                    if Code_review_comment:
+                        score = i["Score"]
+                        return render_template("member.html", message = f"{session['StudentID']}-{name}", msg = f"作業分數:{score}", MSG = "審查時間:12/31-01/04")
+                    else:break
+        else:
+            name = "助教-孟柏岑"
+        return render_template("member.html", message = f"{session['StudentID']}-{name}", msg = f"實名制上路中!", MSG = f"作業繳交期限:12/28 23:59")        
     else:
         return redirect("/")
 
@@ -133,6 +188,7 @@ def signin():  # 登入
     # 從前端取得使用者輸入
     studentid = request.form["studentid"]
     password = request.form["password"]
+    hw_num = request.form["homeworknumber"]
     result = collection.find_one({
         "$and":[
             {"StudentID":studentid,
@@ -142,10 +198,13 @@ def signin():  # 登入
     # 如果沒有找到對應資料, 代表沒有註冊
     if result == None:
         return redirect("/error?msg=帳號或密碼輸入錯誤!")
-        # return render_template("home.html", name="帳號或密碼輸入錯誤!")
     # 登入成功, 在 Session 紀錄會員資訊, 並導向到會員頁面
     session["StudentID"] = result["StudentID"]
-    return redirect("/member")
+    if hw_num[2] == hwn:
+        return redirect("/member")
+    else:
+        oldhomeworkautomemberhtml(hw_num[2])
+        return redirect(f"/oldhomeworkmember/{hw_num[2]}")
 
 @app.route("/signout")
 def signout():  # 登出
@@ -186,6 +245,17 @@ def rank3():  #　記憶體排名
     else:
         return redirect("/error?msg=尚未登入!請先登入謝謝~")
 
+@app.route("/rank4")
+def rank4():  #　記憶體排名
+    # 顯示演算法概論排名
+    if "StudentID" in session:
+        #------------------------------------------------# 自動化輸出排名
+        Html(createSheet())
+        #------------------------------------------------#
+        return render_template("rank4.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
 @app.route("/goupload")
 def goupload():  # 上傳頁面
     # 顯示上傳檔案的頁面
@@ -195,15 +265,19 @@ def goupload():  # 上傳頁面
                 cursor = collection_homework.find()
                 for i in cursor:
                     if i["StudentID"] == session["StudentID"]:
-                        if "Frequency" in i:
+                        if i["Frequency"] != 0 and "Score" in i:
+                            score = i["Score"]
                             upload_freq = i["Frequency"]
                             break
                         else:
-                            upload_freq = 0
+                            upload_freq = i["Frequency"]
+                            score = 0
                             break
-            else:upload_freq = 0
+            else:
+                upload_freq = 0
+                score = 0
             # msg = request.args.get("msg", "尚未上傳檔案!")
-            return render_template("goupload.html", message = f"上傳次數:{upload_freq}")
+            return render_template("goupload.html", message = f"上傳次數:{upload_freq}", msg = f"最高分數:{score}")
         else:
             return redirect("/membererror?msg=上傳功能目前沒有開放喔~")
     else:
@@ -211,6 +285,11 @@ def goupload():  # 上傳頁面
 
 @app.route("/upload", methods=["POST"])
 def upload():  # 上傳檔案後的處理 (成績 / 複雜度 / 上傳次數)
+    cursor = list(collection_homework.find())
+    # for i in cursor:
+    #     if i["StudentID"] == session["StudentID"]:
+    #         if "Frequency" not in i or i["Frequency"] < 30:break
+    #         return redirect("/membererror?msg=上傳次數已達上限!")
     check_student_dir(session["StudentID"])
     UPLOAD_FOLDER = f'C:/Users/lab70829/Desktop/Membership system/file/hw{hwn}/{session["StudentID"]}'
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER  # 存放的資料夾
@@ -221,23 +300,24 @@ def upload():  # 上傳檔案後的處理 (成績 / 複雜度 / 上傳次數)
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
     else:return redirect("/membererror?msg=檔案錯誤,請重新上傳!")
-    cursor = collection_homework.find()
     for i in cursor:
         if i["StudentID"] == session["StudentID"]:
-            if "Frequency" in i:
-                filename = check_student_file_rename(session["StudentID"], filename, hwn, str(i["Frequency"]))
-                break
-            else:
-                filename = check_student_file_rename(session["StudentID"], filename, hwn, "0")
-                break
-    # print(filename)
-    Score, Time, Memory, Sheet = ans(session["StudentID"], filename, hwn)  # 計算分數 , 時間 , 記憶體
-    TimeMemory(session["StudentID"], Time, Memory, Score)  # Time and Memory 寫入資料庫
-    uploadCount(session["StudentID"])  # 計算上傳次數
+            filename = check_student_file_rename(session["StudentID"], filename, hwn, str(i["Frequency"]))
+            break
+    Score, Time, Memory, Sheet = ans(session["StudentID"], filename, hwn)  # 計算分數 , 時間 , 記憶體 
     # print(session["StudentID"])
     if Score == 100:
-        return render_template("membererror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:{Time}ms", Memory=f"記憶體:{Memory}KB")
+        if Time <= 4500:
+            TimeMemory(session["StudentID"], Time, Memory, Score)  # Time and Memory 寫入資料庫
+            uploadCount(session["StudentID"])  # 計算上傳次數
+            return render_template("membererror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:{Time}ms", Memory=f"記憶體:{Memory}KB")
+        else:
+            TimeMemory(session["StudentID"], Time, Memory, 97)  # Time and Memory 寫入資料庫
+            uploadCount(session["StudentID"])  # 計算上傳次數
+            return render_template("membererror.html", message="time limit exceeded")
     else:
+        TimeMemory(session["StudentID"], Time, Memory, Score)  # Time and Memory 寫入資料庫
+        uploadCount(session["StudentID"])  # 計算上傳次數
         create_checkmistake_sheet(Sheet)
         return render_template("uploaderror.html", message="成功上傳!", Score=f"分數:{Score}", Time=f"時間:----ms", Memory=f"記憶體:----KB")
 
@@ -275,16 +355,18 @@ def codepage(TYPE, ojid):  # 時間程式碼頁面
             elif f"Not_perfect_{low_TYPE}_file" in i:
                 File_Name = i[f"Not_perfect_{low_TYPE}_file"]
             Name = i["Name"]
+            if "Number" in i:number = str(i["Number"])
+            else:number = 0
             break
     File_Name = str(File_Name)
-    STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
+    STUDENT_id = (File_Name.split('_')[1].split('s'))[1]
     if request.method == "GET":
         if "StudentID" in session:
             if Code_review_comment:  # 判斷是否開啟程式碼審查
                 if TYPE == "Time":
-                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid)
+                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid, number)
                 else:
-                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid)
+                    read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid, number)
                 return render_template("codepage.html")
             else:
                 return render_template("membererror.html", message="此功能尚未開放!")
@@ -293,7 +375,9 @@ def codepage(TYPE, ojid):  # 時間程式碼頁面
     else:
         if "StudentID" in session:
             comment = request.form["Comment"]
-            comment = comment.replace("\n", "<br>").replace("\r", "<br>")
+            comment = comment.replace("<", "&lt;").replace(">", "&gt;")  # 將此符號轉換成html的符號
+            comment = comment.replace("\n", "<br>").replace("\r", "<br>")  # 將換行轉換成html換行
+            comment = comment.replace(" ", "&nbsp")  # 將空格轉換成html空格
             date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             for i in cursor:
                 if i["StudentID"] == session["StudentID"]:
@@ -321,9 +405,9 @@ def codepage(TYPE, ojid):  # 時間程式碼頁面
                     break
             
             if TYPE == "Time":
-                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid)
+                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_time, TYPE, ojid, number)
             else:
-                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid)
+                read_python_file(File_Name, STUDENT_id, hwn, Name, Anonymous_message, collection_comment_memory, TYPE, ojid, number)
             return render_template("codepage.html")
         else:
             return redirect("/error?msg=尚未登入!請先登入謝謝~")
@@ -331,7 +415,7 @@ def codepage(TYPE, ojid):  # 時間程式碼頁面
 @app.route("/teachingassistant")
 def teachingassistant():  # 助教頁面
     if "StudentID" in session:
-        if session["StudentID"] == "1104813":
+        if session["StudentID"] in ["1104813","1094815"]:
             return render_template("teachingassistant.html")
         else:
             return redirect("/membererror?msg=這裡是助教專區!請止步謝謝~")
@@ -341,7 +425,7 @@ def teachingassistant():  # 助教頁面
 @app.route("/studentdata")
 def studentdata():  # 顯示學生後台數據
     if "StudentID" in session:
-        if session["StudentID"] == "1104813":
+        if session["StudentID"] in ["1104813","1094815"]:
             create_student_data()  # 創建學生後臺數據
             return render_template("studentdata.html")
         else:
@@ -450,18 +534,216 @@ def Addmemberinformation():  # 添加學生作業資料
     else:
         return redirect("/membererror?msg=尚未登入!請先登入謝謝~")
 
+# ******************************************************** # # 舊作業路由區塊
+@app.route("/oldhomeworkmember/<hw_num>", methods=["GET"])
+def oldhomeworkmember(hw_num):  # 舊作業首頁
+    if "StudentID" in session:
+        if hw_num == "1":  # elif
+            cursor = hw1_cursor  # 取得所有資料的 cursor 物件
+        elif hw_num == "2":  # elif
+            cursor = hw2_cursor  # 取得所有資料的 cursor 物件
+        elif hw_num == "4":  # elif
+            cursor = hw4_cursor  # 取得所有資料的 cursor 物件
+        elif hw_num == "5":
+            cursor = hw5_cursor
+        elif hw_num == "6":
+            cursor = hw6_cursor
+        elif hw_num == "8":
+            cursor = hw8_cursor
+        elif hw_num == "9":
+            cursor = hw9_cursor
+        if hw_num in {"1", "2", "4", "5"}:
+            if session["StudentID"] != "1104813":
+                for i in cursor:
+                    if i["StudentID"] == session["StudentID"]:
+                        name = i["Name"]
+                        number = i["Number"]
+                        break
+            else:
+                name = "助教-孟柏岑"
+                number = 0
+            return render_template(f"oldhomework{hw_num}member.html", message = f"{session['StudentID']}-{name}", msg = f"審查編號:{number}")
+        else:
+            if session["StudentID"] != "1104813":
+                for i in cursor:
+                    if i["StudentID"] == session["StudentID"]:
+                        name = i["Name"]
+                        break
+            else:
+                name = "助教-孟柏岑"
+            return render_template(f"oldhomework{hw_num}member.html", message = f"{session['StudentID']}-{name}", msg = "實名制上路中!")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkrank1/<hw_num>")
+def oldhomeworkrank1(hw_num):  # 舊作業總表
+    # 顯示演算法概論排名
+    if "StudentID" in session:
+        return render_template(f"oldhomework{hw_num}rank1.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkrank2/<hw_num>")
+def oldhomeworkrank2(hw_num):  #　舊作業時間排名
+    # 顯示演算法概論排名
+    if "StudentID" in session:
+        return render_template(f"oldhomework{hw_num}rank2.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkrank3/<hw_num>")
+def oldhomeworkrank3(hw_num):  #　舊作業記憶體排名
+    # 顯示演算法概論排名
+    if "StudentID" in session:
+        return render_template(f"oldhomework{hw_num}rank3.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkrank4/<hw_num>")
+def oldhomeworkrank4(hw_num):  #　舊作業記憶體排名
+    # 顯示演算法概論排名
+    if "StudentID" in session:
+        return render_template(f"oldhomework{hw_num}rank4.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkcodereview/<hw_num>")
+def oldhomeworkcodereview(hw_num):  # 舊作業程式碼審查表格頁面
+    if "StudentID" in session:
+        return render_template(f"oldhomework{hw_num}codereview.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkcodereviewsheet/<hw_num>")
+def oldhomeworkcodereviewsheet(hw_num):
+    if "StudentID" in session:
+        return render_template(f"oldhomework_{hw_num}_codereviewsheet.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkcodepage/<TYPE>/<hw_num>/<ojid>")
+def oldhomeworkcodepage(TYPE, hw_num, ojid):  # 舊作業程式碼頁面
+    low_TYPE = TYPE[0].lower() + TYPE[1:]
+    os.chdir(First_Path)
+    if hw_num == "1":  # elif
+        Anonymous = True
+        cursor = hw1_cursor
+    elif hw_num == "2":
+        Anonymous = True
+        cursor = hw2_cursor
+    elif hw_num == "4":
+        Anonymous = True
+        cursor = hw4_cursor
+    elif hw_num == "5":
+        Anonymous = True
+        cursor = hw5_cursor
+    elif hw_num == "6":
+        Anonymous = False
+        cursor = hw6_cursor
+    elif hw_num == "8":
+        Anonymous = False
+        cursor = hw8_cursor
+    elif hw_num == "9":
+        Anonymous = False
+        cursor = hw9_cursor
+    for i in cursor:
+        if i["_id"] == ObjectId(ojid):
+            if f"{TYPE}_file" in i:
+                File_Name = i[f"{TYPE}_file"]
+            elif f"Not_perfect_{low_TYPE}_file" in i:
+                File_Name = i[f"Not_perfect_{low_TYPE}_file"]
+            Name = i["Name"]
+            if "Number" in i:
+                number = str(i["Number"])
+            else:
+                number = 0
+            break
+    File_Name = str(File_Name)
+    if hw_num in {"1", "2"}:
+        STUDENT_id = (File_Name.split('_')[0].split('s'))[1]
+    else:
+        STUDENT_id = (File_Name.split('_')[1].split('s'))[1]
+    if "StudentID" in session:
+        if hw_num == "1":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_1_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_1_comment_memory, TYPE, ojid, number)
+        elif hw_num == "2":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_2_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_2_comment_memory, TYPE, ojid, number)
+        elif hw_num == "4":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_4_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_4_comment_memory, TYPE, ojid, number)
+        elif hw_num == "5":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_5_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_5_comment_memory, TYPE, ojid, number)
+        elif hw_num == "6":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_6_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_6_comment_memory, TYPE, ojid, number)
+        elif hw_num == "8":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_8_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_8_comment_memory, TYPE, ojid, number)
+        elif hw_num == "9":  # elif
+            if TYPE == "Time":
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_9_comment_time, TYPE, ojid, number)
+            else:
+                old_read_python_file(File_Name, STUDENT_id, hw_num, Name, Anonymous, homework_9_comment_memory, TYPE, ojid, number)
+        return render_template("oldhomeworkcodepage.html")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkteachingassistant/<hw_num>")
+def oldhomeworkteachingassistant(hw_num):  # 助教頁面
+    if "StudentID" in session:
+        if session["StudentID"] in ["1104813","1094815"]:
+            return render_template(f"oldhomework{hw_num}teachingassistant.html")
+        else:
+            del session["StudentID"]
+            return redirect("/error?msg=這裡是助教專區!強制幫你登出~")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+@app.route("/oldhomeworkstudentdata/<hw_num>")
+def oldhomeworkstudentdata(hw_num):  # 顯示學生後台數據
+    if "StudentID" in session:
+        if session["StudentID"] in ["1104813","1094815"]:
+            return render_template(f"oldhomework{hw_num}studentdata.html")
+        else:
+            del session["StudentID"]
+            return redirect("/error?msg=這裡是助教專區!強制幫你登出~")
+    else:
+        return redirect("/error?msg=尚未登入!請先登入謝謝~")
+
+# ******************************************************** # 舊作業路由區塊
+
 #----------------------------------------------------#    路由 route
 
 #----------------------------------------------------#    函式區塊
 
 def createSheet():  # 顯示排名並給獎牌
-    sheet_Ori = [[i["StudentID"], i["Name"], i["Time"], i["Memory"]] for i in collection_homework.find() if "Time" in i]
+    sheet_Ori = [[i["StudentID"], i["Name"], i["Time"], i["Memory"], i["Frequency"]] for i in collection_homework.find() if "Time" in i]
+    sheet_Fre = [[i["StudentID"], i["Name"], i["Frequency"]] for i in collection_homework.find()]
+
     sheet_StuID = sorted(sheet_Ori, key=lambda x:x[0])
-    sheet_Time = sorted(sheet_Ori, key=lambda x:x[2])
-    sheet_Memory = sorted(sheet_Ori, key=lambda x:x[3])
+    sheet_Time = sorted([row[:3] for row in sheet_Ori], key=lambda x:x[2])
+    sheet_Memory = sorted([row[:2]+[row[3]] for row in sheet_Ori], key=lambda x:x[2])
+    sheet_Frequency = sorted(sheet_Fre, key=lambda x:x[2], reverse=True)
     #====================================================================================
-    who_get_medal_dict = dict()  # 儲存獎牌人
-    medal_dict = {1:"🥇", 2:"🥈", 3:"🥉"}  # 獎牌字典  
+    who_get_medal_dict = defaultdict(list)  # 儲存獎牌人
+    medal_dict = {1:"🥇", 2:"🥈", 3:"🥉"}  # 獎牌字典
+    who_get_demon_dict = defaultdict(list)  # 儲存惡魔人
+    demon_dict = {1:"🤡", 2:"👹", 3:"👻"}  # 惡魔字典
     #====================================================================================
     df_Time = pd.DataFrame()
     df_Time["Rank"] = [j[2] for j in sheet_Time]
@@ -473,13 +755,10 @@ def createSheet():  # 顯示排名並給獎牌
         if 1 <= sheet_Time[i][0] <= 3:
             stu_name = sheet_Time[i][2]
             sheet_Time[i][2] += medal_dict[sheet_Time[i][0]]
-            if stu_name not in who_get_medal_dict:
-                who_get_medal_dict[stu_name] = [medal_dict[sheet_Time[i][0]]]
-            else:
-                who_get_medal_dict[stu_name].append(medal_dict[sheet_Time[i][0]])
+            who_get_medal_dict[stu_name].append(medal_dict[sheet_Time[i][0]])
     #====================================================================================
     df_Memory = pd.DataFrame()
-    df_Memory["Rank"] = [j[3] for j in sheet_Memory]
+    df_Memory["Rank"] = [j[2] for j in sheet_Memory]
     df_rank_Memory = df_Memory.Rank.rank(method='min', ascending=True)
     final_rank_Memory = [int(j) for j in df_rank_Memory] # 將時間和記憶體做排名
 
@@ -488,16 +767,29 @@ def createSheet():  # 顯示排名並給獎牌
         if 1 <= sheet_Memory[i][0] <= 3:
             stu_name = sheet_Memory[i][2]
             sheet_Memory[i][2] += medal_dict[sheet_Memory[i][0]]
-            if stu_name not in who_get_medal_dict:
-                who_get_medal_dict[stu_name] = [medal_dict[sheet_Memory[i][0]]]
-            else:
-                who_get_medal_dict[stu_name].append(medal_dict[sheet_Memory[i][0]])
+            who_get_medal_dict[stu_name].append(medal_dict[sheet_Memory[i][0]])
     #====================================================================================
+    df_Freq = pd.DataFrame()
+    df_Freq["Rank"] = [-j[2] if j[2] > 0 else 0 for j in sheet_Frequency] # 從大排到小
+    df_rank_Freq = df_Freq.Rank.rank(method='min', ascending=True)
+    final_rank_Freq = [int(j) for j in df_rank_Freq] # 將次數做排名
+
+    for i in range(len(sheet_Frequency)):
+        sheet_Frequency[i] = [final_rank_Freq[i]] + sheet_Frequency[i][:2] + [str(sheet_Frequency[i][2])]
+        if 1 <= sheet_Frequency[i][0] <= 3:
+            stu_name = sheet_Frequency[i][2]
+            sheet_Frequency[i][2] += demon_dict[sheet_Frequency[i][0]] # 名字後面加惡魔
+            who_get_demon_dict[stu_name].append(demon_dict[sheet_Frequency[i][0]])
+    #====================================================================================
+    # 在總表中加入獎牌
     for i in range(len(sheet_StuID)):
         stu_name = sheet_StuID[i][1]
         if stu_name in who_get_medal_dict.keys():
             for medal in who_get_medal_dict[stu_name]:
                 sheet_StuID[i][1] += medal
+        if stu_name in who_get_demon_dict.keys():
+            for demon in who_get_demon_dict[stu_name]:
+                sheet_StuID[i][1] += demon
     #====================================================================================
     for i in range(len(sheet_StuID)):
         sheet_StuID[i] = tuple(sheet_StuID[i])
@@ -508,22 +800,25 @@ def createSheet():  # 顯示排名並給獎牌
     for i in range(len(sheet_Memory)):
         sheet_Memory[i] = tuple(sheet_Memory[i])
     sheet_Memory = tuple(sheet_Memory)
+    for i in range(len(sheet_Frequency)):
+        sheet_Frequency[i] = tuple(sheet_Frequency[i])
+    sheet_Frequency = tuple(sheet_Frequency)
     #====================================================================================
-    return [sheet_StuID, sheet_Time, sheet_Memory]
+    return [sheet_StuID, sheet_Time, sheet_Memory, sheet_Frequency]
     
 def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜度
     if score == 100:
-        cursor = collection_homework.find()
+        cursor = list(collection_homework.find())
         for i in cursor:
             if i["StudentID"] == id:
-                if "Frequency" in i:
+                if i["Frequency"] != 0:
                     if "Time" in i:
                         if i["Time"] > time:
                             result = collection_homework.update_many({
                                 "StudentID":id
                             }, {
                                 "$set":{
-                                    "Time_file":f"s{id}_{i['Frequency']}",
+                                    "Time_file":f"hw{hwn}_s{id}_{i['Frequency']}",
                                     "Time":time
                                 }
                             })
@@ -534,7 +829,7 @@ def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜
                                 "StudentID":id
                             }, {
                                 "$set":{
-                                    "Memory_file":f"s{id}_{i['Frequency']}",
+                                    "Memory_file":f"hw{hwn}_s{id}_{i['Frequency']}",
                                     "Memory":memory
                                 }
                             })
@@ -543,8 +838,8 @@ def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜
                             "StudentID":id
                         }, {
                             "$set":{
-                                "Time_file":f"s{id}_{i['Frequency']}",
-                                "Memory_file":f"s{id}_{i['Frequency']}",
+                                "Time_file":f"hw{hwn}_s{id}_{i['Frequency']}",
+                                "Memory_file":f"hw{hwn}_s{id}_{i['Frequency']}",
                                 "Time":time,
                                 "Memory":memory,
                                 "Score":f"{score}"
@@ -555,8 +850,8 @@ def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜
                         "StudentID":id
                     }, {
                         "$set":{
-                            "Time_file":f"s{id}_0",
-                            "Memory_file":f"s{id}_0",
+                            "Time_file":f"hw{hwn}_s{id}_0",
+                            "Memory_file":f"hw{hwn}_s{id}_0",
                             "Time":time,
                             "Memory":memory,
                             "Score":f"{score}"
@@ -567,14 +862,14 @@ def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜
         for i in cursor:
             if i["StudentID"] == id:
                 if "Time_file" not in i and "Memory_file" not in i:
-                    if "Frequency" in i:
+                    if i["Frequency"] != 0 and "Score" in i:
                         if int(i["Score"]) < score:
                             collection_homework.update_many({
                                 "StudentID":id
                             }, {
                                 "$set":{
-                                    "Not_perfect_time_file":f"s{id}_{i['Frequency']}",
-                                    "Not_perfect_memory_file":f"s{id}_{i['Frequency']}",
+                                    "Not_perfect_time_file":f"hw{hwn}_s{id}_{i['Frequency']}",
+                                    "Not_perfect_memory_file":f"hw{hwn}_s{id}_{i['Frequency']}",
                                     "Score":f"{score}"
                                 }
                             })
@@ -583,8 +878,8 @@ def TimeMemory(id, time, memory, score):  # 寫入時間複雜度和空間複雜
                             "StudentID":id
                         }, {
                             "$set":{
-                                "Not_perfect_time_file":f"s{id}_0",
-                                "Not_perfect_memory_file":f"s{id}_0",
+                                "Not_perfect_time_file":f"hw{hwn}_s{id}_0",
+                                "Not_perfect_memory_file":f"hw{hwn}_s{id}_0",
                                 "Score":f"{score}"
                             }
                         })
@@ -593,28 +888,28 @@ def uploadCount(id):  # 計算上傳次數
     cursor = collection_homework.find()
     for i in cursor:
         if i["StudentID"] == id:
-            if "Frequency" not in i:
-                result = collection_homework.update_one({
-                    "StudentID":id
-                }, {
-                    "$set":{
-                        "Frequency":1
-                    }
-                })
-                # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
-                # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
-                break
-            else:
-                result = collection_homework.update_one({  # 利用 'StudentID':學號 當搜尋目標 ;再用 '$inc' (加 or 減) 想要的資料
-                    "StudentID":id
-                }, {
-                    "$inc":{
-                        "Frequency":1  # '1' 代表原本數字加 1
-                    }
-                })
-                # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
-                # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
-                break
+            # if "Frequency" not in i:
+            #     result = collection_homework.update_one({
+            #         "StudentID":id
+            #     }, {
+            #         "$set":{
+            #             "Frequency":1
+            #         }
+            #     })
+            #     # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+            #     # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
+            #     break
+            # else:
+            result = collection_homework.update_one({  # 利用 'StudentID':學號 當搜尋目標 ;再用 '$inc' (加 or 減) 想要的資料
+                "StudentID":id
+            }, {
+                "$inc":{
+                    "Frequency":1  # '1' 代表原本數字加 1
+                }
+            })
+            # print(f"符合篩選條件的文件數量(Frequency):{result.matched_count}")
+            # print(f"實際符合更新的文件數量(Frequency):{result.modified_count}")
+            break
 
 def check_student_dir(student_file):  # 創建學生資料夾 "file/hw/studentid"
     os.chdir(First_Path)
@@ -625,11 +920,11 @@ def check_student_dir(student_file):  # 創建學生資料夾 "file/hw/studentid
 
 def check_student_file_rename(studentid, filename, hw_num, freqency):  # 重新命名學生檔案 "s1104813_0"
     os.chdir(f"./file/hw{hw_num}/{studentid}")
-    if os.path.isfile(f"s{studentid}_{freqency}.py"):  # 處理例外事件, 檔案重複
-        os.remove(f"s{studentid}_{freqency}.py")
-    os.rename(filename, f"s{studentid}_{freqency}.py")
+    if os.path.isfile(f"hw{hwn}_s{studentid}_{freqency}.py"):  # 處理例外事件, 檔案重複
+        os.remove(f"hw{hwn}_s{studentid}_{freqency}.py")
+    os.rename(filename, f"hw{hwn}_s{studentid}_{freqency}.py")
     os.chdir(First_Path)
-    return f"s{studentid}_{freqency}.py"
+    return f"hw{hwn}_s{studentid}_{freqency}.py"
 
 def create_codereview_sheet():  # 創建程式碼審查表單
     review_sheet = []
@@ -660,23 +955,24 @@ def create_checkmistake_sheet(checkmistake_sheet):  # 創建學生錯誤題目�
     for rs in range(len(checkmistake_sheet)):
         checkmistake_sheet[rs] = tuple(checkmistake_sheet[rs])
     checkmistake_sheet = tuple(checkmistake_sheet)
-
+    # print(checkmistake_sheet)
     checkmistakeHtml(checkmistake_sheet)
 
 def create_student_data():  # 創建後臺學生數據表單
+    # print("!!!!!!!!!!!!!!!!!")
     student_sheet = []
-    cursor = collection_homework.find()
+    cursor = list(collection_homework.find())
     count = 0
     for i in cursor:
         count += 1
         if "Time_file" in i and "Memory_file" in i:
-            student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Number"], i["Time_file"], i["Memory_file"]])
+            student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Time_file"], i["Memory_file"]])
         else:
-            if "Frequency" in i:
+            if i["Frequency"] != 0:
                 if "Not_perfect_time_file" in i and "Not_perfect_memory_file" in i:
-                    student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Number"], i["Not_perfect_time_file"], i["Not_perfect_memory_file"]])
+                    student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Not_perfect_time_file"], i["Not_perfect_memory_file"]])
             else:
-                student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], "0", "目前沒分數", i["Number"], "未上傳檔案", "未上傳檔案"])
+                student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], str(i["Frequency"]), "目前沒分數", "未上傳檔案", "未上傳檔案"])
     for ss in range(len(student_sheet)):
         student_sheet[ss] = tuple(student_sheet[ss])
     student_sheet = tuple(student_sheet)
@@ -714,11 +1010,11 @@ def allowed_file(filename):  # 限制檔案 (.py)
            filename.split('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def randomcodereviewnumber():  # 新增編號給每位同學
-    number = sample(range(1,82), 81)
+    number = sample(range(1,81), 80)
     cursor = collection_homework.find()
     count = 0
     for i in cursor:
-        result = collection_homework.update_one({  # 利用 'name':'柏岑' 當搜尋目標 ;再用 '$set' (更新 or 添加) 想要改動的資料
+        collection_homework.update_one({  # 利用 'name':'柏岑' 當搜尋目標 ;再用 '$set' (更新 or 添加) 想要改動的資料
             "Name":i["Name"]
         }, {
             "$set":{
@@ -728,18 +1024,199 @@ def randomcodereviewnumber():  # 新增編號給每位同學
         count += 1
 
 def addstudentmemberinformation():  # 新增學生會員資訊到新作業資料庫
-    cursor = collection.find()
+    cursor = list(collection.find())
     for i in cursor:
-        if i["Name"] == "孟柏岑":continue
+        if i["Name"] in {"孟柏岑","周柏權","劉明瑋","廖翊宇","李存德"}:continue
         collection_homework.insert_one({
             "Name":i["Name"],
             "StudentID":i["StudentID"],
             "Smallname":i["Smallname"],
+            "Frequency":0
         })
+
+# ******************************************************** # 舊作業函示區塊
+
+def oldhomework_createSheet(collection):  # 作業一顯示排名並給獎牌
+    sheet_Ori = [[i["StudentID"], i["Name"], i["Time"], i["Memory"], i["Frequency"]] for i in collection if "Time" in i]
+    sheet_Fre = [[i["StudentID"], i["Name"], i["Frequency"]] for i in collection]
+
+    sheet_StuID = sorted(sheet_Ori, key=lambda x:x[0])
+    sheet_Time = sorted([row[:3] for row in sheet_Ori], key=lambda x:x[2])
+    sheet_Memory = sorted([row[:2]+[row[3]] for row in sheet_Ori], key=lambda x:x[2])
+    sheet_Frequency = sorted(sheet_Fre, key=lambda x:x[2], reverse=True)
+    #====================================================================================
+    who_get_medal_dict = defaultdict(list)  # 儲存獎牌人
+    medal_dict = {1:"🥇", 2:"🥈", 3:"🥉"}  # 獎牌字典
+    who_get_demon_dict = defaultdict(list)  # 儲存惡魔人
+    demon_dict = {1:"🤡", 2:"👹", 3:"👻"}  # 惡魔字典
+    #====================================================================================
+    df_Time = pd.DataFrame()
+    df_Time["Rank"] = [j[2] for j in sheet_Time]
+    df_rank_Time = df_Time.Rank.rank(method='min', ascending=True)
+    final_rank_Time = [int(j) for j in df_rank_Time] # 將時間和記憶體做排名
+
+    for i in range(len(sheet_Time)):
+        sheet_Time[i] = [final_rank_Time[i]] + sheet_Time[i]
+        if 1 <= sheet_Time[i][0] <= 3:
+            stu_name = sheet_Time[i][2]
+            sheet_Time[i][2] += medal_dict[sheet_Time[i][0]]
+            who_get_medal_dict[stu_name].append(medal_dict[sheet_Time[i][0]])
+    #====================================================================================
+    df_Memory = pd.DataFrame()
+    df_Memory["Rank"] = [j[2] for j in sheet_Memory]
+    df_rank_Memory = df_Memory.Rank.rank(method='min', ascending=True)
+    final_rank_Memory = [int(j) for j in df_rank_Memory] # 將時間和記憶體做排名
+
+    for i in range(len(sheet_Memory)):
+        sheet_Memory[i] = [final_rank_Memory[i]] + sheet_Memory[i]
+        if 1 <= sheet_Memory[i][0] <= 3:
+            stu_name = sheet_Memory[i][2]
+            sheet_Memory[i][2] += medal_dict[sheet_Memory[i][0]]
+            who_get_medal_dict[stu_name].append(medal_dict[sheet_Memory[i][0]])
+    #====================================================================================
+    df_Freq = pd.DataFrame()
+    df_Freq["Rank"] = [-j[2] for j in sheet_Frequency] # 從大排到小
+    df_rank_Freq = df_Freq.Rank.rank(method='min', ascending=True)
+    final_rank_Freq = [int(j) for j in df_rank_Freq] # 將次數做排名
+
+    for i in range(len(sheet_Frequency)):
+        sheet_Frequency[i] = [final_rank_Freq[i]] + sheet_Frequency[i]
+        if 1 <= sheet_Frequency[i][0] <= 3:
+            stu_name = sheet_Frequency[i][2]
+            sheet_Frequency[i][2] += demon_dict[sheet_Frequency[i][0]] # 名字後面加惡魔
+            who_get_demon_dict[stu_name].append(demon_dict[sheet_Frequency[i][0]])
+    #====================================================================================
+    # 在總表中加入獎牌
+    for i in range(len(sheet_StuID)):
+        stu_name = sheet_StuID[i][1]
+        if stu_name in who_get_medal_dict.keys():
+            for medal in who_get_medal_dict[stu_name]:
+                sheet_StuID[i][1] += medal
+        if stu_name in who_get_demon_dict.keys():
+            for demon in who_get_demon_dict[stu_name]:
+                sheet_StuID[i][1] += demon
+    #====================================================================================
+    for i in range(len(sheet_StuID)):
+        sheet_StuID[i] = tuple(sheet_StuID[i])
+    sheet_StuID = tuple(sheet_StuID)
+    for i in range(len(sheet_Time)):
+        sheet_Time[i] = tuple(sheet_Time[i])
+    sheet_Time = tuple(sheet_Time)
+    for i in range(len(sheet_Memory)):
+        sheet_Memory[i] = tuple(sheet_Memory[i])
+    sheet_Memory = tuple(sheet_Memory)
+    for i in range(len(sheet_Frequency)):
+        sheet_Frequency[i] = tuple(sheet_Frequency[i])
+    sheet_Frequency = tuple(sheet_Frequency)
+    #====================================================================================
+    return [sheet_StuID, sheet_Time, sheet_Memory, sheet_Frequency]
+
+def old_homework_create_codereview_sheet(cursor):  # 創建實名程式碼審查表單
+    review_sheet = []
+    for i in cursor:
+        review_sheet.append([i["StudentID"], i["Name"], "未上傳", "未上傳"])
+
+    for rs in range(len(review_sheet)):
+        review_sheet[rs] = tuple(review_sheet[rs])
+    review_sheet = tuple(review_sheet)
+    return review_sheet
+
+def old_homework_create_smallname_codereview_sheet(cursor):  # 創建匿名程式碼審查表單
+    sn_review_sheet = []
+    # cursor = collection_homework.find()
+    count = 0
+    for i in cursor:
+        count += 1
+        sn_review_sheet.append([f"{count}", "未上傳", "未上傳"])
+
+    for srs in range(len(sn_review_sheet)):
+        sn_review_sheet[srs] = tuple(sn_review_sheet[srs])
+    sn_review_sheet = tuple(sn_review_sheet)
+    return sn_review_sheet
+
+def old_homework_create_student_data(cursor):  # 創建後臺學生數據表單
+    student_sheet = []
+    count = 0
+    for i in cursor:
+        count += 1
+        if "Number" in i:
+            if "Time_file" in i and "Memory_file" in i:
+                student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Number"], i["Time_file"], i["Memory_file"]])
+            else:
+                if "Not_perfect_time_file" in i and "Not_perfect_memory_file" in i:
+                    student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Number"], i["Not_perfect_time_file"], i["Not_perfect_memory_file"]])
+        else:
+            if "Time_file" in i and "Memory_file" in i:
+                student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Time_file"], i["Memory_file"]])
+            else:
+                if "Not_perfect_time_file" in i and "Not_perfect_memory_file" in i:
+                    student_sheet.append([count, i["StudentID"], i["Name"], i["Smallname"], i["Frequency"], i['Score'], i["Not_perfect_time_file"], i["Not_perfect_memory_file"]])
+    for ss in range(len(student_sheet)):
+        student_sheet[ss] = tuple(student_sheet[ss])
+    student_sheet = tuple(student_sheet)
+    return student_sheet
+
+# ******************************************************** # 舊作業函示區塊
 
 #----------------------------------------------------#    函式區塊
 
+# *************************************************** # 舊作業1
+hw1_cursor = list(collection_homework_1.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw1_cursor), "1")
+oldhomeworksmallnamereviewHtml(old_homework_create_smallname_codereview_sheet(hw1_cursor), hw1_cursor, "1")
+oldteachingassistanthtml("1")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw1_cursor), "1")
+# *************************************************** # 舊作業1
+
+# *************************************************** # 舊作業2
+hw2_cursor = list(collection_homework_2.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw2_cursor), "2")
+oldhomeworksmallnamereviewHtml(old_homework_create_smallname_codereview_sheet(hw2_cursor), hw2_cursor, "2")
+oldteachingassistanthtml("2")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw2_cursor), "2")
+# *************************************************** # 舊作業2
+
+# *************************************************** # 舊作業4
+hw4_cursor = list(collection_homework_4.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw4_cursor), "4")
+oldhomeworksmallnamereviewHtml(old_homework_create_smallname_codereview_sheet(hw4_cursor), hw4_cursor, "4")
+oldteachingassistanthtml("4")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw4_cursor), "4")
+# *************************************************** # 舊作業4
+
+# *************************************************** # 舊作業5
+hw5_cursor = list(collection_homework_5.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw5_cursor), "5")
+oldhomeworksmallnamereviewHtml(old_homework_create_smallname_codereview_sheet(hw5_cursor), hw5_cursor, "5")
+oldteachingassistanthtml("5")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw5_cursor), "5")
+# *************************************************** # 舊作業5
+
+# *************************************************** # 舊作業6
+hw6_cursor = list(collection_homework_6.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw6_cursor), "6")
+oldhomeworkreviewHtml(old_homework_create_codereview_sheet(hw6_cursor), hw6_cursor, "6")
+oldteachingassistanthtml("6")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw6_cursor), "6")
+# *************************************************** # 舊作業6
+
+# *************************************************** # 舊作業8
+hw8_cursor = list(collection_homework_8.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw8_cursor), "8")
+oldhomeworkreviewHtml(old_homework_create_codereview_sheet(hw8_cursor), hw8_cursor, "8")
+oldteachingassistanthtml("8")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw8_cursor), "8")
+# *************************************************** # 舊作業8
+
+# *************************************************** # 舊作業9
+hw9_cursor = list(collection_homework_9.find())  # 取得所有資料的 cursor 物件
+OldHtml(oldhomework_createSheet(hw9_cursor), "9")
+oldhomeworkreviewHtml(old_homework_create_codereview_sheet(hw9_cursor), hw9_cursor, "9")
+oldteachingassistanthtml("9")
+oldhomeworkstudentHtml(old_homework_create_student_data(hw9_cursor), "9")
+# *************************************************** # 舊作業9
+
 if __name__ == '__main__':
-    app.run(host="140.138.178.26" ,port=5000)
-    # app.run(host="140.138.178.26" ,port=5000, debug=True)
+    # app.run(host="140.138.178.26" ,port=5000)
+    app.run(host="140.138.178.26" ,port=3000)
     # app.run(port=3000, debug=True)

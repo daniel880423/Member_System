@@ -1,0 +1,124 @@
+
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>時間程式碼</title>
+                <style type="text/css">
+                    body {font-family: consolas;background-color: #37464a;color:black}
+                    
+                    .code {border-collapse: collapse;color: #9cdcfe;background-color:#1a1b1c;width: 100%}
+                    .table_num {text-align: right;width: 40px;color: grey}
+                    .keyword1 {color: #569cd6}
+                    .keyword2 {color: #c586c0}
+                    .op {color: #d4d4d4}
+                    .func {color: #dcdcaa}
+                    .str {color: #ce9178}
+                    .comment {color:#6a9955;font-style:italic}
+                    .brackets {color:#ffd700}
+                    .module {color:#4ec9b0}
+                    .number {color:#b5cea8}
+                
+                    
+                    .CommenT {font:100% verdana,arial,sans-serif;margin: auto;padding: 0;min-width: 500px;max-width: 600px;width: 560px; height:280px;top:0; bottom:0; left:0; right:0;}
+                    table {table-layout:fixed;border-spacing: 0;width: 100%;}
+                    input{outline-style: none ;border: 5px solid #ccc; border-radius: 3px; border-color: #965ca1;padding: 14px 14px;width: 500px;font-size: 20px;font-family: consolas;}
+                    .main {width: 80%;margin: 50px auto;}
+                    .but {text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                    .cmt {text-align: center;width: 150px;min-height: 40px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;cursor: pointer;}
+                
+                    
+            .modal {display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0; top: 0; width: 100%;height: 100%;overflow: auto;background-color: rgb(0,0,0);background-color: rgba(0,0,0,0.4);}
+            .modal-content {background-color: #fefefe; margin: auto; padding: 10px; border: 1px solid #888; width: 20%;}
+            .close {color: #aaaaaa; float: right; font-size: 28px; font-weight: bold;} 
+            .close:hover, .close:focus {color: #000; text-decoration: none; cursor: pointer;}
+        
+                </style>
+            </head>
+            <body>
+            
+            
+                    <table align="center" border="15" height="150px" style="border-color:#555858; padding: 5px; text-align: center;">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <span style="font-size:60px; background-color: rgb(188, 240, 224); font-weight:bold; font-family: consolas; font-style:oblique; padding:3px;">&nbsp;類型:Time&nbsp;&nbsp;&nbsp;&nbsp;編號:1&nbsp;</span>
+                            </td>
+                        </tr>
+                    </table></br>
+            
+            <table class='code'><tr><td class='table_num'>1</td><td width='10px'></td><td><span class='keyword1'>def</span>&nbsp<span class='func'>homework_1</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='op'>:</span>&nbsp<span class='comment'># 請同學記得把檔案名稱改成自己的學號(ex.1104813.py)</td></tr><tr><td class='table_num'>2</td><td width='10px'></td><td></span>&nbsp&nbsp&nbsp&nbsp<span class='func'>max</span>&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td class='table_num'>3</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbspcount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td class='table_num'>4</td><td width='10px'></td><td></td></tr><tr><td class='table_num'>5</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>for</span>&nbspi&nbsp<span class='keyword2'>in</span>&nbsp<span class='func'>range</span><span class='brackets'>(</span><span class='func'>len</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='brackets'>)</span><span class='op'>:</span></td></tr><tr><td class='table_num'>6</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspi<span class='op'>=</span><span class='op'>=</span><span class='brackets'>(</span><span class='func'>len</span><span class='brackets'>(</span>nums<span class='brackets'>)</span><span class='op'>-</span><span class='number'>1</span><span class='brackets'>)</span><span class='op'>:</span></td></tr><tr><td class='table_num'>7</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>break</span></td></tr><tr><td class='table_num'>8</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspx&nbsp<span class='op'>=</span>&nbspnums<span class='brackets'>[</span>i<span class='brackets'>]</span></td></tr><tr><td class='table_num'>9</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspx&nbsp<span class='op'>=</span><span class='op'>=</span>&nbspnums<span class='brackets'>[</span>i<span class='op'>+</span><span class='number'>1</span><span class='brackets'>]</span><span class='op'>:</span></td></tr><tr><td class='table_num'>10</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspcount<span class='op'>+</span><span class='op'>=</span><span class='number'>1</span></td></tr><tr><td class='table_num'>11</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspa&nbsp<span class='op'>=</span>&nbspcount</td></tr><tr><td class='table_num'>12</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>if</span>&nbspa&nbsp<span class='op'>></span>&nbspmax<span class='op'>:</span></td></tr><tr><td class='table_num'>13</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='func'>max</span>&nbsp<span class='op'>=</span>&nbspa&nbsp&nbsp</td></tr><tr><td class='table_num'>14</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>else</span><span class='op'>:</span></td></tr><tr><td class='table_num'>15</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspcount&nbsp<span class='op'>=</span>&nbsp<span class='number'>1</span></td></tr><tr><td class='table_num'>16</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td></tr><tr><td class='table_num'>17</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td></tr><tr><td class='table_num'>18</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp<span class='keyword2'>return</span>&nbsp<span class='func'>max</span></td></tr><tr><td class='table_num'>19</td><td width='10px'></td><td></td></tr><tr><td class='table_num'>20</td><td width='10px'></td><td><span class='keyword2'>if</span>&nbsp__name__&nbsp<span class='op'>=</span><span class='op'>=</span>&nbsp<span class='str'>'__main__'</span><span class='op'>:</span></td></tr><tr><td class='table_num'>21</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsplst&nbsp<span class='op'>=</span>&nbsp<span class='brackets'>[</span><span class='number'>0</span><span class='op'>,</span>&nbsp<span class='number'>0</span><span class='op'>,</span>&nbsp<span class='number'>1</span><span class='op'>,</span>&nbsp<span class='number'>1</span><span class='op'>,</span>&nbsp<span class='number'>1</span><span class='op'>,</span>&nbsp<span class='number'>1</span><span class='op'>,</span>&nbsp<span class='number'>0</span><span class='op'>,</span>&nbsp<span class='number'>0</span><span class='op'>,</span>&nbsp<span class='number'>0</span><span class='op'>,</span>&nbsp<span class='number'>1</span><span class='brackets'>]</span></td></tr><tr><td class='table_num'>22</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp<span class='func'>print</span><span class='brackets'>(</span><span class='func'>homework_1</span><span class='brackets'>(</span>lst<span class='brackets'>)</span><span class='brackets'>)</span></td></tr><tr><td class='table_num'>23</td><td width='10px'></td><td>&nbsp&nbsp&nbsp&nbsp</td></tr></table></br>
+            
+                    <button class="but" style="font-size: 23px;" onclick="copy()">Copy</button>
+                    
+            
+            <div class="main">
+                <table style="table-layout:fixed;border-collapse:collapse;word-break:keep-all;font-size:22px;">
+                    <tr style="color:#fff;background-color:#48a6fb;font-size:22px;">
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">時間</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言人</th>
+                        <th rowspan="1" style="border-color:#000;border-width:1px;border-style:solid;padding:15px;">留言內容</th>
+                    </tr>
+            <tr>
+                                <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-06 13:07:58</td>
+                                <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">星巴克</td>
+                                <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">這一串程式碼中，寫得非常完整，程式碼也能夠順利進行，但是在程式碼中運用了過多的if可能會消耗大量的時間，如果能夠整合會更好<br/></td>
+                            </tr>
+                            <tr>
+                                <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">2022-10-06 17:18:16</td>
+                                <td style="border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">victor</td>
+                                <td style="word-wrap:break-word;border-color:#000;border-width:1px;border-style:solid;padding:5px;background-color: white;">寫得不錯，有自己的想法，時間的問題要注意一下，修改之後會更好。<br/></td>
+                            </tr>
+                            </table></div>
+            
+                    <table border="3" width="300px" height="100px" style="border-color:#555858;" class="tabbut">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <form action="/oldhomeworkcodereview/1" style="display:inline-block;"><button class="but" style="font-size: 23px;">程式碼審查清單</button></form>
+                                <form action="/oldhomeworkmember/1" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+                            </td>
+                        </tr>
+                    </table>
+                    
+            <script>
+                function copy(){
+                    var text = `def homework_1(nums): # 請同學記得把檔案名稱改成自己的學號(ex.1104813.py)
+    max = 1
+    count = 1
+
+    for i in range(len(nums)):
+        if i==(len(nums)-1):
+            break
+        x = nums[i]
+        if x == nums[i+1]:
+            count+=1
+            a = count
+            if a > max:
+                 max = a  
+        else:
+            count = 1
+          
+        
+    return max
+
+if __name__ == '__main__':
+    lst = [0, 0, 1, 1, 1, 1, 0, 0, 0, 1]
+    print(homework_1(lst))
+    ` ;
+                    if (navigator.clipboard){
+                    navigator.clipboard.writeText(text);
+                    } else{
+                    var textarea = document.createElement('textarea');
+                    document.body.appendChild (textarea);
+                    // 隱藏此輸入框
+                    textarea.style.position = 'fixed' ;
+                    textarea.style.clip = 'rect(0 0 0 0)' ;
+                    textarea.style.top = '10px' ;
+                    textarea.value = text;
+                    textarea.select();
+                    document.execCommand( 'copy' , true );
+                    document.body.removeChild (textarea);
+                    }
+                    alert("已複製到剪貼簿囉！");
+                }
+            </script>
+            </body></html>

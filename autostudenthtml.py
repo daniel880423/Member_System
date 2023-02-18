@@ -5,8 +5,8 @@ def studentHtml(rows):
     table = HTMLTable()
     # 表頭行
     table.append_header_rows((
-        ('編號', '學號', '姓名', '暱稱', '上傳次數', '最佳分數', '審查編號','最佳程式碼' , ''),
-        (    '',    '',     '',    '',         '',         '',       '','時間', '記憶體'),
+        ('編號', '學號', '姓名', '暱稱', '上傳次數', '最佳分數','最佳程式碼' , ''),
+        (    '',    '',     '',    '',         '',         '','時間', '記憶體'),
     ))
     # 合併單元格
     table[0][0].attr.rowspan = 2
@@ -15,8 +15,7 @@ def studentHtml(rows):
     table[0][3].attr.rowspan = 2
     table[0][4].attr.rowspan = 2
     table[0][5].attr.rowspan = 2
-    table[0][6].attr.rowspan = 2
-    table[0][7].attr.colspan = 2
+    table[0][6].attr.colspan = 2
 
     # 資料行
 
@@ -82,6 +81,7 @@ def studentHtml(rows):
             tr {text-align: center;}
             th {padding: 10px;}
             table tbody tr:nth-child(odd){background-color: #eee}
+            table tbody tr:nth-child(even) {background-color: rgb(222, 222, 222)}
             table thead {background-color: blue;color: white;}
             table thead th:first-child {border-radius: 5px 0 0 0;border: 1px solid blue;}
             .but{text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;}

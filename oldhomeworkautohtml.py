@@ -1,0 +1,142 @@
+from HTMLTable import HTMLTable
+import os
+def OldHtml(student, hw_num):
+    for i in range(len(student)):
+        # 標題
+        table = HTMLTable()
+        # 表頭行
+        if i == 0:  # 舊總表
+            table.append_header_rows((
+                ('學號', '姓名', '複雜度' , '', '上傳次數'),
+                (   '',     '', '花費時間(ms)', '記憶體使用量(MB)', ''),
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.colspan = 2
+            table[0][4].attr.rowspan = 2
+        elif i == 1:  # 舊時間
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '花費時間(ms)'),
+                (  '',  '',  '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
+        elif i == 2:  # 舊記憶體
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '記憶體使用量(MB)'),
+                (  '',  '',  '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
+        else:  # 舊次數
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '上傳次數'),
+                ('', '', '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
+
+        # 資料行
+
+        exec(f"table.append_data_rows({student[i]})")
+
+        # table.append_data_rows((
+        #     ('1','孟柏岑', '1104813', 10, 0.5),
+        #     ('2','張培元', '1104807', 15, 0.1),
+        #     ('3','詹育森', '1094815', 20, 0.08)
+        # ))
+
+        # 標題樣式
+        table.caption.set_style({
+            'color': '#fff',
+            'font-size': '30px',
+        })
+        # 表格樣式，即</table><table>標籤樣式
+        table.set_style({
+            'border-collapse': 'collapse',
+            'word-break': 'keep-all',
+            'white-space': 'nowrap',
+            'font-size': '22px',
+        })
+        # 統一設定所有單元格樣式，<tbody><tr><td>或</td><th>
+        table.set_cell_style({
+            'border-color': '#000',
+            'border-width': '1px',
+            'border-style': 'solid',
+            'padding': '5px',
+        })
+        # 表頭樣式
+        table.set_header_row_style({
+            'color': '#fff',
+            'background-color': '#48a6fb',
+            'font-size': '22px',
+        })
+
+        # 覆蓋表頭單元格字型樣式
+        table.set_header_cell_style({
+            'padding': '15px',
+        })
+        # 調小次表頭字型大小
+        table[1].set_cell_style({
+            'padding': '8px',
+            'font-size': '15px',
+        })
+        # ---------------------------------------------------------------- # 
+
+        html = table.to_html()  # 字串
+        final_html = f"""
+<!DOCTYPE html>
+
+<head>
+    <meta charset='UTF-8'>
+    <title>排名</title>
+    <style type="text/css">
+        .but{{   text-align: center;width: 279px;   min-height: 50px;   display: block;   background-color: #4a77d4;   border: 1px solid #3762bc;   color: #fff;   padding: 9px 14px;   font-size: 15px;   line-height: normal;   border-radius: 5px;margin: 10px auto;cursor: pointer; }}
+        .main {{width: 80%;margin: 20px auto;background-color: #ffffff}}
+        table {{border-spacing: 0;width: 100%;}}
+        tr {{text-align: center;}}
+        th {{padding: 10px;}}
+        table tbody tr:nth-child(odd){{background-color: #eee}}
+        table thead {{background-color: blue;color: white;}}
+        table thead th:first-child {{border-radius: 5px 0 0 0;border: 1px solid blue;}}
+        table tbody tr:nth-child(even) {{background-color: rgb(222, 222, 222)}}
+    </style>
+</head>
+
+<body style='background-color: #37464a;'>
+    <table border="3" width="300px" height="100px" style="border-color:#555858;">
+        <tr>
+            <td bgcolor="#37464a">
+                <form action="/oldhomeworkrank1/{hw_num}" style="display:inline-block;"><button class="but" style="font-size: 23px;">總表</button></form>
+                <form action="/oldhomeworkrank2/{hw_num}" style="display:inline-block;"><button class="but" style="font-size: 23px;">時間排名</button></form>
+                <form action="/oldhomeworkrank3/{hw_num}" style="display:inline-block;"><button class="but" style="font-size: 23px;">記憶體排名</button></form>
+                <form action="/oldhomeworkrank4/{hw_num}" style="display:inline-block;"><button class="but" style="font-size: 23px;">上傳次數排名</button></form>
+                <form action="/oldhomeworkmember/{hw_num}" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
+            </td>
+        </tr>
+    </table>
+    <div class='main'>
+    """+html+"""
+    </div>
+</body>
+
+</html>
+"""
+        # final_html = f"<!DOCTYPE html><head><meta charset='UTF-8'><link href='RANK.css' rel='stylesheet' type='text/css' /><title>排名</title></head><body style='background-color: #37464a;'><form action='/rank1'><button class='but'>總表</button></form><form action='/rank2'><button class='but'>時間排名</button></form><form action='/rank3'><button class='but'>記憶體排名</button></form><form action='/member'><button class='but'>返回會員首頁</button></form><div class='main'>{html}</div></body></html>"
+        final_html = final_html.replace("'", "\"")
+        # print("--------------------------------")
+        path = "C:\\Users\\lab70829\\Desktop\\Membership system"
+        os.chdir(path)
+        # print("--------------------------------")
+        with open(f"templates/oldhomework{hw_num}rank{i+1}.html", "w", encoding="utf-8") as file:
+            file.write(final_html)

@@ -7,7 +7,7 @@ import pymongo
 # 把資料放進資料庫中
 import re
 class PythonToHTML:
-    def __init__(self, input_py_name, hwn, id, Name, bol, collection, Type, ojid):
+    def __init__(self, input_py_name, hwn, id, Name, bol, collection, Type, ojid, number):
         # 輸入與輸出檔案名稱
         self.input_py_name = input_py_name
         self.hwn = hwn
@@ -18,6 +18,7 @@ class PythonToHTML:
         self.Type = Type
         self.Type_zh_dict = {"Time":"時間", "Memory":"記憶體"}
         self.ojid = ojid
+        self.number = number
 
         # 定義所需資料
         self.py = str() # 檔案內容
@@ -410,6 +411,16 @@ class PythonToHTML:
                         </tr>
                     </table></br>
             """
+        else:
+            htmltext = f"""
+                    <table align="center" border="15" height="150px" style="border-color:#555858; padding: 5px; text-align: center;">
+                        <tr style="text-align: center;">
+                            <td bgcolor="#37464a">
+                                <span style="font-size:60px; background-color: rgb(188, 240, 224); font-weight:bold; font-family: consolas; font-style:oblique; padding:3px;">&nbsp;類型:{self.Type}&nbsp;&nbsp;&nbsp;&nbsp;編號:{self.number}&nbsp;</span>
+                            </td>
+                        </tr>
+                    </table></br>
+            """
         return htmltext
     def to_html_python_code(self):
         htmltext = "<table class='code'>"
@@ -470,7 +481,7 @@ class PythonToHTML:
 
         htmltext += f"""
                     <form class="CommenT" action="/codepage/{self.Type}/{self.ojid}", method="POST">
-                        <textarea cols="48" rows="8" minlength="25" maxlength="1000" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
+                        <textarea cols="48" rows="8" minlength="30" maxlength="1000" name="Comment" required="required" style="border:5px purple double; font-size:20px;color:blue;"></textarea></br>
                         <button class="cmt">提交留言</button>
                     </form>
                     """
@@ -538,9 +549,9 @@ class PythonToHTML:
 
         return HTML
 
-def read_python_file(filename, id, hwn, Name, bol, collection, Type, ojid): 
+def read_python_file(filename, id, hwn, Name, bol, collection, Type, ojid, number): 
     now = os.getcwd()
-    pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type, ojid)
+    pth = PythonToHTML(f"{filename}.py", hwn, id, Name, bol, collection, Type, ojid, number)
     html = pth.main()
     #-----------------------------------------------------#
     os.chdir("./templates")

@@ -5,28 +5,48 @@ def Html(student):
         # 標題
         table = HTMLTable()
         # 表頭行
-        if i != 0:
+        if i == 0:
             table.append_header_rows((
-                ('排名', '學號', '姓名', '複雜度' , ''),
-                (    '',   '',     '', '花費時間(ms)', '記憶體使用量(MB)'),
-            ))
-            # 合併單元格
-            table[0][0].attr.rowspan = 2
-            table[0][1].attr.rowspan = 2
-            table[0][2].attr.rowspan = 2
-            table[0][3].attr.colspan = 2
-        else:
-            table.append_header_rows((
-                ('學號', '姓名', '複雜度' , ''),
-                (   '',     '', '花費時間(ms)', '記憶體使用量(MB)'),
+                ('學號', '姓名', '複雜度' , '', '上傳次數'),
+                (   '',     '', '花費時間(ms)', '記憶體使用量(MB)', ''),
             ))
             # 合併單元格
             table[0][0].attr.rowspan = 2
             table[0][1].attr.rowspan = 2
             table[0][2].attr.colspan = 2
+            table[0][4].attr.rowspan = 2
+        elif i == 1:
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '花費時間(ms)'),
+                (  '',  '',  '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
+        elif i == 2:
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '記憶體使用量(MB)'),
+                (  '',  '',  '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
+        else:
+            table.append_header_rows((
+                ('排名', '學號', '姓名', '上傳次數'),
+                ('', '', '', '')
+            ))
+            # 合併單元格
+            table[0][0].attr.rowspan = 2
+            table[0][1].attr.rowspan = 2
+            table[0][2].attr.rowspan = 2
+            table[0][3].attr.rowspan = 2
 
         # 資料行
-
         exec(f"table.append_data_rows({student[i]})")
 
         # table.append_data_rows((
@@ -80,6 +100,9 @@ def Html(student):
     <meta charset='UTF-8'>
     <link href='RANK.css' rel='stylesheet' type='text/css' />
     <title>排名</title>
+    <style type="text/css">
+        table tbody tr:nth-child(even) {background-color: rgb(222, 222, 222)}
+    </style>
 </head>
 
 <body style='background-color: #37464a;'>
@@ -89,6 +112,7 @@ def Html(student):
                 <form action="/rank1" style="display:inline-block;"><button class="but" style="font-size: 23px;">總表</button></form>
                 <form action="/rank2" style="display:inline-block;"><button class="but" style="font-size: 23px;">時間排名</button></form>
                 <form action="/rank3" style="display:inline-block;"><button class="but" style="font-size: 23px;">記憶體排名</button></form>
+                <form action="/rank4" style="display:inline-block;"><button class="but" style="font-size: 23px;">上傳次數排名</button></form>
                 <form action="/member" style="display:inline-block;"><button class="but" style="font-size: 23px;">返回會員首頁</button></form>
             </td>
         </tr>

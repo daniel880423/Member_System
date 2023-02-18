@@ -63,22 +63,23 @@ def reviewHtml(rows, collection):
     # print(html[html.index("未")+87:html.index("未")+87+3])
     
     # print(html[html.index("未")+91:html.index("未")+3+91])
-    cursor = collection.find()
-    for i in cursor:
+    cursor_list = list(collection.find())
+    for dic in cursor_list:
         idx = html.index("未")
-        # print(i)
-        if "Time_file" in i:
-            html[idx:idx+3] = [f"<a href='/Timecodepage?msg={i['Time_file']}'>程式碼</a>"]
+
+        if "Time_file" in dic:
+            html[idx:idx+3] = [f"<a href='/codepage/Time/{str(dic['_id'])}'>程式碼</a>"]
         else:
-            if "Not_perfect_time_file" in i:
-                html[idx:idx+3] = [f"<a href='/Timecodepage?msg={i['Not_perfect_time_file']}'>程式碼</a>"]
+            if "Not_perfect_time_file" in dic:
+                html[idx:idx+3] = [f"<a href='/codepage/Time/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx:idx+3] = ["沒有完成"]
-        if "Memory_file" in i:
-            html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={i['Memory_file']}'>程式碼</a>"]
+
+        if "Memory_file" in dic:
+            html[idx+87-2:idx+87+3-2] = [f"<a href='/codepage/Memory/{str(dic['_id'])}'>程式碼</a>"]
         else:
-            if "Not_perfect_memory_file" in i:
-                html[idx+87-2:idx+87+3-2] = [f"<a href='/Memorycodepage?msg={i['Not_perfect_memory_file']}'>程式碼</a>"]
+            if "Not_perfect_memory_file" in dic:
+                html[idx+87-2:idx+87+3-2] = [f"<a href='/codepage/Memory/{str(dic['_id'])}'>程式碼</a>"]
             else:
                 html[idx+87-2:idx+87+3-2] = ["沒有完成"]
     
@@ -111,6 +112,7 @@ def reviewHtml(rows, collection):
         <table border="3" width="300px" height="100px" style="border-color:#555858;">
             <tr>
                 <td bgcolor="#37464a">
+                    <form action="/codereviewsheet" style="display:inline-block;"><button class="but"style="font-size: 23px;">查看審查名單</button></form>
                     <form action="/member" style="display:inline-block;"><button class="but"style="font-size: 23px;">返回會員首頁</button></form>
                 </td>
             </tr>

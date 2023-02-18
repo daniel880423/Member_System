@@ -1,0 +1,41 @@
+def homework_5(matrix, start, end, total): # 請同學記得把檔案名稱改成自己的學號(ex.1104813.py)
+    W = [[float('inf') for i in range(total)] for j in range(total)]
+    for i in range(0, total):
+        for j in range(0, total):
+    		    if i==j:
+			        W[i][j]=0          
+    for i in range(len(matrix)):
+        W[matrix[i][0]-1][matrix[i][1]-1] = matrix[i][2]
+
+    path =  [[-1 for i in range(total)] for j in range(total)]
+    A = W   
+
+    for k in range(total):
+        for i in range(total):
+            for j in range(total):
+                if (A[i][k] + A[k][j] < A[i][j]):
+                    A[i][j] = min(A[i][j],A[i][k]+A[k][j])
+                    path[i][j] = k
+
+    global s
+    s = str()
+    s+=str(start)
+    if A[start-1][end-1] == float("inf") or start == end : 
+        return [-1,None]
+    
+    def getpath(i,j,path):
+        global s
+        if(path[i][j] != -1):
+            getpath(i,path[i][j],path)
+            s += str(path[i][j]+1)
+            #print(str(i+1)+str(j)+str(end))
+            getpath(path[i][j],j,path)
+    getpath(start-1,end-1,path)
+    s+=str(end)
+    return [A[start-1][end-1], s]
+
+if __name__ == '__main__':
+    matrix = [[1, 2, 4], [1, 3, 5], [2, 6, 1], [3, 4, 4], [3, 1, 1], [4, 5, 2], [5, 6, 1], [6, 7, 10]]
+    start = 3;end = 6; total = 8
+    print(homework_5(matrix, start, end, total))
+    

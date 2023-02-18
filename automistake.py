@@ -20,7 +20,7 @@ def checkmistakeHtml(rows):
     # 資料行
 
     exec(f"table.append_data_rows({rows})")
-
+    # print(rows)
     # 標題樣式  
     table.caption.set_style({
         'color': '#fff',
@@ -30,8 +30,8 @@ def checkmistakeHtml(rows):
     table.set_style({
         'border-collapse': 'collapse',
         'word-break': 'keep-all',
-        'white-space': 'nowrap',
         'font-size': '22px',
+        'table-layout':'fixed',
     })
     # 統一設定所有單元格樣式，<tbody><tr><td>或</td><th>
     table.set_cell_style({
@@ -60,6 +60,8 @@ def checkmistakeHtml(rows):
 
     html = table.to_html()  # 字串
 
+    # print(html)
+
     final_html = """
     <!DOCTYPE html>
 
@@ -75,7 +77,9 @@ def checkmistakeHtml(rows):
             table {border-spacing: 0;width: 100%;}
             tr {text-align: center;}
             th {padding: 10px;}
+            td {word-wrap:break-word;}
             table tbody tr:nth-child(odd){background-color: #eee}
+            table tbody tr:nth-child(even) {background-color: rgb(222, 222, 222)}
             table thead {background-color: blue;color: white;}
             table thead th:first-child {border-radius: 5px 0 0 0;border: 1px solid blue;}
             .but{text-align: center;width: 300px;min-height: 60px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 14px;font-size: 15px;line-height: normal;border-radius: 5px;margin: 10px auto;}
