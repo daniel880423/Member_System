@@ -1,6 +1,6 @@
 # Member_System
 
-**資料庫 : Mongodb**
+**資料庫 : Mongodb --> MySQL**
 
 **程式語言 : Python / Html / CSS / JavaScript**
 
