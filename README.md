@@ -2,7 +2,7 @@
 
 **資料庫 : Mongodb**
 
-**程式語言 : Python/Html/CSS**
+**程式語言 : Python / Html / CSS / JavaScript**
 
 **主程式 : PoTsen.py**
 
